@@ -343,4 +343,46 @@ export const Icons = {
       <path d="m9 18 6-6-6-6"/>
     </svg>
   ),
+
+  star: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
+  ),
+
+  edit: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+    </svg>
+  ),
+
+  ban: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="m4.9 4.9 14.2 14.2"/>
+    </svg>
+  ),
+
+  fileText: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+      <path d="M14 2v6h6"/>
+      <path d="M16 13H8M16 17H8M10 9H8"/>
+    </svg>
+  ),
+
+  shieldCheck: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+      <path d="m9 12 2 2 4-4"/>
+    </svg>
+  ),
+
+  shieldX: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+      <path d="m14.5 9.5-5 5"/>
+      <path d="m9.5 9.5 5 5"/>
+    </svg>
+  ),
 };

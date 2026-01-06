@@ -68,9 +68,9 @@ export default function UsersPage() {
   };
 
   // Total followers
-  const getTotalFollowers = (followers: any) => {
+  const getTotalFollowers = (followers: any): number => {
     if (!followers) return 0;
-    return Object.values(followers).reduce((a: any, b: any) => a + b, 0);
+    return Object.values(followers).reduce((a: number, b: any) => a + (b as number), 0);
   };
 
   if (selectedUser) {
@@ -358,9 +358,9 @@ function UserDetailView({ user, onBack }: { user: User; onBack: () => void }) {
     return count.toString();
   };
 
-  const getTotalFollowers = (followers: any) => {
+  const getTotalFollowers = (followers: any): number => {
     if (!followers) return 0;
-    return Object.values(followers).reduce((a: any, b: any) => a + b, 0);
+    return Object.values(followers).reduce((a: number, b: any) => a + (b as number), 0);
   };
 
   const socialPlatforms = [
