@@ -19,7 +19,7 @@ export default function UsersPage() {
   const [activePage, setActivePage] = useState('users');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [filters, setFilters] = useState({
-    type: 'all' as 'all' | 'influencer' | 'business',
+    type: 'influencer' as 'all' | 'influencer' | 'business',
     status: 'all' as 'all' | UserStatus,
     search: '',
   });
@@ -137,7 +137,6 @@ export default function UsersPage() {
               {/* Type Tabs */}
               <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-xl">
                 {[
-                  { id: 'all', label: 'All Users', icon: 'users' },
                   { id: 'influencer', label: 'Influencers', icon: 'user', color: 'violet' },
                   { id: 'business', label: 'Businesses', icon: 'building', color: 'blue' },
                 ].map((tab) => {
