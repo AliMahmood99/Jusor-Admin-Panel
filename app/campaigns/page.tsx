@@ -1146,7 +1146,7 @@ const CampaignDetailView = ({ campaign, onBack }: any) => {
                       </div>
                       <div className="flex-1">
                         <p className="text-sm text-slate-900">
-                          {activity.type === 'payment_released' && <>Payment of <span className="font-semibold">{formatCurrency(activity.amount)}</span> released to <span className="font-semibold">{activity.influencer}</span></>}
+                          {activity.type === 'payment_released' && <>Payment of <span className="font-semibold">{formatCurrency(activity.amount || 0)}</span> released to <span className="font-semibold">{activity.influencer}</span></>}
                           {activity.type === 'content_approved' && <>Content from <span className="font-semibold">{activity.influencer}</span> was approved</>}
                           {activity.type === 'dispute_opened' && <>Dispute <span className="font-semibold">{activity.disputeId}</span> opened for <span className="font-semibold">{activity.influencer}</span></>}
                           {activity.type === 'content_submitted' && <><span className="font-semibold">{activity.influencer}</span> submitted content</>}
