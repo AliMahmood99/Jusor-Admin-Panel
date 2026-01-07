@@ -28,6 +28,8 @@ export default function Sidebar({ active, setActive }: SidebarProps) {
       router.push('/campaigns');
     } else if (id === 'financial') {
       router.push('/financial');
+    } else if (id === 'payouts') {
+      router.push('/payouts');
     } else if (id === 'dashboard') {
       router.push('/');
     } else {
