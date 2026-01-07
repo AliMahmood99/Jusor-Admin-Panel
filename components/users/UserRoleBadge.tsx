@@ -12,7 +12,7 @@ interface UserRoleBadgeProps {
   type: 'influencer' | 'business';
 }
 
-export default function UserRoleBadge({ type }: UserRoleBadgeProps) {
+const UserRoleBadge = React.memo(({ type }: UserRoleBadgeProps) => {
   return type === 'influencer' ? (
     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-violet-50 text-violet-600">
       <Icons.user className="w-3 h-3" />
@@ -24,4 +24,8 @@ export default function UserRoleBadge({ type }: UserRoleBadgeProps) {
       Business
     </div>
   );
-}
+});
+
+UserRoleBadge.displayName = 'UserRoleBadge';
+
+export default UserRoleBadge;

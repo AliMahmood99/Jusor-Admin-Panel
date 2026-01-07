@@ -24,6 +24,10 @@ export default function Sidebar({ active, setActive }: SidebarProps) {
       router.push('/disputes');
     } else if (id === 'users') {
       router.push('/users');
+    } else if (id === 'campaigns') {
+      router.push('/campaigns');
+    } else if (id === 'financial') {
+      router.push('/financial');
     } else if (id === 'dashboard') {
       router.push('/');
     } else {

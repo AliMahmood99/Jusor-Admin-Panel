@@ -10,7 +10,7 @@ interface DisputeStatusBadgeProps {
   status: DisputeStatus;
 }
 
-export default function DisputeStatusBadge({ status }: DisputeStatusBadgeProps) {
+const DisputeStatusBadge = React.memo(({ status }: DisputeStatusBadgeProps) => {
   const statusConfig = {
     open: { label: 'Open', bg: 'bg-rose-500', text: 'text-white' },
     in_review: { label: 'In Review', bg: 'bg-blue-500', text: 'text-white' },
@@ -25,4 +25,8 @@ export default function DisputeStatusBadge({ status }: DisputeStatusBadgeProps) 
       {config.label}
     </span>
   );
-}
+});
+
+DisputeStatusBadge.displayName = 'DisputeStatusBadge';
+
+export default DisputeStatusBadge;

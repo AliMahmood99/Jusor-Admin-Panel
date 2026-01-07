@@ -13,7 +13,7 @@ interface UserStatusBadgeProps {
   status: UserStatus;
 }
 
-export default function UserStatusBadge({ status }: UserStatusBadgeProps) {
+const UserStatusBadge = React.memo(({ status }: UserStatusBadgeProps) => {
   const configs = {
     verified: {
       label: 'Verified',
@@ -52,4 +52,8 @@ export default function UserStatusBadge({ status }: UserStatusBadgeProps) {
       {config.label}
     </span>
   );
-}
+});
+
+UserStatusBadge.displayName = 'UserStatusBadge';
+
+export default UserStatusBadge;

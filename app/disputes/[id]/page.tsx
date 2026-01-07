@@ -14,14 +14,13 @@ import DisputePriorityBadge from '@/components/disputes/DisputePriorityBadge';
 import DisputePartyCard from '@/components/disputes/DisputePartyCard';
 import EvidenceSection from '@/components/disputes/EvidenceSection';
 import TimelineSection from '@/components/disputes/TimelineSection';
-import ChatSection from '@/components/disputes/ChatSection';
 import DecisionModal from '@/components/disputes/DecisionModal';
 import { MOCK_DISPUTES } from '@/lib/constants';
 
 export default function DisputeDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const [activePage, setActivePage] = useState('disputes');
-  const [activeTab, setActiveTab] = useState<'overview' | 'evidence' | 'messages' | 'timeline'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'evidence' | 'timeline'>('overview');
   const [showDecisionModal, setShowDecisionModal] = useState(false);
 
   // Unwrap params Promise (Next.js 15+)
@@ -51,7 +50,6 @@ export default function DisputeDetailsPage({ params }: { params: Promise<{ id: s
   const tabs = [
     { id: 'overview', label: 'Overview' },
     { id: 'evidence', label: 'Evidence', count: dispute.evidence.length },
-    { id: 'messages', label: 'Messages', count: dispute.messages.length },
     { id: 'timeline', label: 'Timeline' },
   ];
 
@@ -207,14 +205,6 @@ export default function DisputeDetailsPage({ params }: { params: Promise<{ id: s
               </div>
             )}
 
-            {activeTab === 'messages' && (
-              <ChatSection
-                messages={dispute.messages}
-                initiatorName={dispute.initiator.name}
-                respondentName={dispute.respondent.name}
-              />
-            )}
-
             {activeTab === 'timeline' && <TimelineSection dispute={dispute} />}
           </div>
 
@@ -235,11 +225,6 @@ export default function DisputeDetailsPage({ params }: { params: Promise<{ id: s
                 <button className="w-full h-11 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-700 font-medium flex items-center justify-center gap-2 transition-colors">
                   <Icons.bell className="w-4 h-4" />
                   Send Reminder
-                </button>
-
-                <button className="w-full h-11 rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium flex items-center justify-center gap-2 transition-colors">
-                  <Icons.arrowUp className="w-4 h-4" />
-                  Escalate to Senior
                 </button>
 
                 <button className="w-full h-11 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-600 font-medium flex items-center justify-center gap-2 transition-colors">

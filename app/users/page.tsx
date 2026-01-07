@@ -5,24 +5,62 @@
 
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
 import { Icons } from '@/components/common/Icons';
 import UserStatusBadge from '@/components/users/UserStatusBadge';
 import UserRoleBadge from '@/components/users/UserRoleBadge';
-import { MOCK_USERS, MOCK_USER_ACTIVITY } from '@/lib/constants';
-import type { User, UserStatus } from '@/types';
+import { UserListSkeleton } from '@/components/common/LoadingSkeleton';
+import { MOCK_USERS } from '@/lib/constants';
+import {
+  MOCK_INFLUENCER_ACTIVITY_LOG,
+  MOCK_BUSINESS_ACTIVITY_LOG,
+  MOCK_INFLUENCER_CAMPAIGNS,
+  MOCK_BUSINESS_CAMPAIGNS,
+  MOCK_INFLUENCER_TRANSACTIONS,
+  MOCK_BUSINESS_TRANSACTIONS,
+} from '@/lib/mockUserData';
+import type { User, UserStatus, InfluencerUser, BusinessUser } from '@/types';
 
-export default function UsersPage() {
+function UsersPageContent() {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [activePage, setActivePage] = useState('users');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+  // Initialize filters from URL params
   const [filters, setFilters] = useState({
-    type: 'influencer' as 'all' | 'influencer' | 'business',
-    status: 'all' as 'all' | UserStatus,
-    search: '',
+    type: (searchParams.get('type') as 'all' | 'influencer' | 'business') || 'influencer',
+    status: (searchParams.get('status') as 'all' | UserStatus) || 'all',
+    search: searchParams.get('search') || '',
   });
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    if (filters.type && filters.type !== 'influencer') {
+      params.set('type', filters.type);
+    }
+
+    if (filters.status && filters.status !== 'all') {
+      params.set('status', filters.status);
+    }
+
+    if (filters.search) {
+      params.set('search', filters.search);
+    }
+
+    const queryString = params.toString();
+    const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
+
+    // Only push if URL actually changed
+    if (window.location.pathname + window.location.search !== newUrl) {
+      router.push(newUrl, { scroll: false });
+    }
+  }, [filters, pathname, router]);
 
   // Count by type
   const typeCounts = {
@@ -49,7 +87,7 @@ export default function UsersPage() {
         u.name.toLowerCase().includes(q) ||
         u.email.toLowerCase().includes(q) ||
         u.id.toLowerCase().includes(q) ||
-        (u.handle && u.handle.toLowerCase().includes(q))
+        (u.type === 'influencer' && u.handle && u.handle.toLowerCase().includes(q))
       );
     }
     return true;
@@ -331,6 +369,846 @@ export default function UsersPage() {
   );
 }
 
+// ============================================
+// TAB COMPONENTS
+// ============================================
+
+// Overview Tab Component
+function OverviewTab({ user, isInfluencer }: { user: User; isInfluencer: boolean }) {
+  const getStatusConfig = (status: UserStatus) => {
+    const configs = {
+      verified: { label: 'Verified', bg: 'bg-emerald-500', text: 'text-white' },
+      pending: { label: 'Pending Verification', bg: 'bg-amber-500', text: 'text-white' },
+      suspended: { label: 'Suspended', bg: 'bg-rose-500', text: 'text-white' },
+      banned: { label: 'Banned', bg: 'bg-slate-700', text: 'text-white' },
+    };
+    return configs[status] || configs.pending;
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Suspension Notice */}
+      {user.status === 'suspended' && 'suspensionReason' in user && user.suspensionReason && (
+        <div className="bg-rose-50 rounded-2xl border border-rose-200 p-5">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center shrink-0">
+              <Icons.ban className="w-5 h-5 text-rose-600" />
+            </div>
+            <div>
+              <h3 className="text-base font-semibold text-rose-800">Account Suspended</h3>
+              <p className="text-sm text-rose-700 mt-1">{user.suspensionReason}</p>
+              {'suspendedAt' in user && user.suspendedAt && (
+                <p className="text-xs text-rose-500 mt-2">
+                  Suspended on {new Date(user.suspendedAt).toLocaleDateString()}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Basic Info & Verification */}
+      <div className="grid grid-cols-2 gap-6">
+        {/* Contact Information */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+          <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Icons.user className="w-4 h-4 text-gray-400" />
+            Contact Information
+          </h3>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center">
+                <Icons.mail className="w-4 h-4 text-gray-500" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Email</p>
+                <p className="text-sm font-medium text-gray-900">{user.email}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center">
+                <Icons.phone className="w-4 h-4 text-gray-500" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Phone</p>
+                <p className="text-sm font-medium text-gray-900">{user.phone}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center">
+                <Icons.mapPin className="w-4 h-4 text-gray-500" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Location</p>
+                <p className="text-sm font-medium text-gray-900">{user.location}, Saudi Arabia</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center">
+                <Icons.calendar className="w-4 h-4 text-gray-500" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Joined</p>
+                <p className="text-sm font-medium text-gray-900">
+                  {new Date(user.joinedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                </p>
+              </div>
+            </div>
+            {!isInfluencer && 'contactPerson' in user && user.contactPerson && (
+              <div className="flex items-center gap-3 pt-3 border-t border-gray-100">
+                <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
+                  <Icons.user className="w-4 h-4 text-blue-500" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Contact Person</p>
+                  <p className="text-sm font-medium text-gray-900">{user.contactPerson}</p>
+                  {'contactRole' in user && user.contactRole && (
+                    <p className="text-xs text-gray-500">{user.contactRole}</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Verification Status */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+          <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Icons.shieldCheck className="w-4 h-4 text-emerald-500" />
+            Verification Status
+          </h3>
+          <div className="space-y-4">
+            {isInfluencer && 'nafathVerified' in user ? (
+              <>
+                <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
+                  <div className="flex items-center gap-3">
+                    <Icons.shield className="w-5 h-5 text-gray-400" />
+                    <span className="text-sm text-gray-700">Nafath Verification</span>
+                  </div>
+                  {user.nafathVerified ? (
+                    <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
+                      <Icons.checkCircle className="w-4 h-4" /> Verified
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1.5 text-xs font-medium text-amber-600">
+                      <Icons.clock className="w-4 h-4" /> Pending
+                    </span>
+                  )}
+                </div>
+                {'mawthooqId' in user && user.mawthooqId && (
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
+                    <div className="flex items-center gap-3">
+                      <Icons.fileText className="w-5 h-5 text-gray-400" />
+                      <div>
+                        <span className="text-sm text-gray-700">Mawthooq ID</span>
+                        <p className="text-xs text-gray-500">{user.mawthooqId}</p>
+                      </div>
+                    </div>
+                    <button className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                      <Icons.copy className="w-3 h-3" /> Copy
+                    </button>
+                  </div>
+                )}
+                {'falNumber' in user && (
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
+                    <div className="flex items-center gap-3">
+                      <Icons.fileText className="w-5 h-5 text-gray-400" />
+                      <div>
+                        <span className="text-sm text-gray-700">FAL Number</span>
+                        <p className="text-xs text-gray-500">{user.falNumber || 'Not provided'}</p>
+                      </div>
+                    </div>
+                    {user.falNumber && (
+                      <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
+                        <Icons.checkCircle className="w-4 h-4" /> Verified
+                      </span>
+                    )}
+                  </div>
+                )}
+                {'iban' in user && (
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
+                    <div className="flex items-center gap-3">
+                      <Icons.wallet className="w-5 h-5 text-gray-400" />
+                      <div>
+                        <span className="text-sm text-gray-700">IBAN</span>
+                        <p className="text-xs text-gray-500 font-mono">{user.iban || 'Not provided'}</p>
+                      </div>
+                    </div>
+                    {'ibanVerified' in user && user.ibanVerified ? (
+                      <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
+                        <Icons.checkCircle className="w-4 h-4" /> Leantech ✓
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1.5 text-xs font-medium text-amber-600">
+                        <Icons.clock className="w-4 h-4" /> Pending
+                      </span>
+                    )}
+                  </div>
+                )}
+              </>
+            ) : 'wathiqVerified' in user ? (
+              <>
+                <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
+                  <div className="flex items-center gap-3">
+                    <Icons.shield className="w-5 h-5 text-gray-400" />
+                    <span className="text-sm text-gray-700">Wathiq Verification</span>
+                  </div>
+                  {user.wathiqVerified ? (
+                    <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
+                      <Icons.checkCircle className="w-4 h-4" /> Verified
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1.5 text-xs font-medium text-amber-600">
+                      <Icons.clock className="w-4 h-4" /> Pending
+                    </span>
+                  )}
+                </div>
+                {'crNumber' in user && user.crNumber && (
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
+                    <div className="flex items-center gap-3">
+                      <Icons.building className="w-5 h-5 text-gray-400" />
+                      <div>
+                        <span className="text-sm text-gray-700">CR Number</span>
+                        <p className="text-xs text-gray-500">{user.crNumber}</p>
+                      </div>
+                    </div>
+                    <button className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                      <Icons.copy className="w-3 h-3" /> Copy
+                    </button>
+                  </div>
+                )}
+                {'flNumber' in user && user.flNumber && (
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
+                    <div className="flex items-center gap-3">
+                      <Icons.fileText className="w-5 h-5 text-gray-400" />
+                      <div>
+                        <span className="text-sm text-gray-700">FL Number</span>
+                        <p className="text-xs text-gray-500">{user.flNumber}</p>
+                      </div>
+                    </div>
+                    <button className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                      <Icons.copy className="w-3 h-3" /> Copy
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : null}
+            {user.verificationDate && (
+              <p className="text-xs text-gray-400 text-center pt-2">
+                Verified on {new Date(user.verificationDate).toLocaleDateString()}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Ratings & Reviews */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6">
+        <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Icons.star className="w-4 h-4 text-amber-400" />
+          Ratings & Reviews
+        </h3>
+        {user.rating > 0 ? (
+          <div className="flex items-center gap-8">
+            <div className="text-center">
+              <p className="text-4xl font-bold text-gray-900">{user.rating}</p>
+              <div className="flex items-center gap-1 justify-center mt-1">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Icons.star
+                    key={i}
+                    className={`w-4 h-4 ${i <= Math.round(user.rating) ? 'text-amber-400' : 'text-gray-200'}`}
+                  />
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">{user.reviewCount} reviews</p>
+            </div>
+            <div className="flex-1 space-y-2">
+              {[5, 4, 3, 2, 1].map((stars) => (
+                <div key={stars} className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500 w-3">{stars}</span>
+                  <Icons.star className="w-3 h-3 text-amber-400" />
+                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-amber-400 rounded-full"
+                      style={{ width: `${stars === 5 ? 60 : stars === 4 ? 25 : stars === 3 ? 10 : 5}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="py-8 text-center">
+            <Icons.starOutline className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+            <p className="text-sm text-gray-500">No reviews yet</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Social Accounts Tab Component
+function SocialAccountsTab({ user }: { user: InfluencerUser }) {
+  const formatFollowers = (count: number) => {
+    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
+    if (count >= 1000) return `${(count / 1000).toFixed(0)}K`;
+    return count.toString();
+  };
+
+  const socialPlatforms = [
+    { key: 'instagram' as const, label: 'Instagram', icon: 'instagram' as const, color: 'bg-gradient-to-br from-purple-500 to-pink-500' },
+    { key: 'tiktok' as const, label: 'TikTok', icon: 'tiktok' as const, color: 'bg-black' },
+    { key: 'youtube' as const, label: 'YouTube', icon: 'youtube' as const, color: 'bg-red-600' },
+    { key: 'snapchat' as const, label: 'Snapchat', icon: 'snapchat' as const, color: 'bg-yellow-400' },
+    { key: 'twitter' as const, label: 'X (Twitter)', icon: 'twitter' as const, color: 'bg-black' },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-6">
+        {socialPlatforms.map((platform) => {
+          const count = user.followers[platform.key];
+          if (!count) return null;
+          const Icon = Icons[platform.icon];
+          return (
+            <div key={platform.key} className="bg-white rounded-2xl border border-gray-200 p-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className={`w-12 h-12 rounded-xl ${platform.color} flex items-center justify-center`}>
+                  {Icon && <Icon className="w-6 h-6 text-white" />}
+                </div>
+                <div>
+                  <h4 className="text-base font-semibold text-gray-900">{platform.label}</h4>
+                  <p className="text-sm text-gray-500">{user.handle}</p>
+                </div>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-4 text-center">
+                <p className="text-2xl font-bold text-gray-900">{formatFollowers(count)}</p>
+                <p className="text-xs text-gray-500 mt-1">Followers</p>
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-100 flex gap-2">
+                <button className="flex-1 h-9 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                  <Icons.externalLink className="w-4 h-4" />
+                  View Profile
+                </button>
+                <button className="flex-1 h-9 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                  <Icons.refresh className="w-4 h-4" />
+                  Refresh Stats
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// Campaigns Tab Component
+function CampaignsTab({ user, isInfluencer }: { user: User; isInfluencer: boolean }) {
+  const campaigns = isInfluencer ? MOCK_INFLUENCER_CAMPAIGNS : MOCK_BUSINESS_CAMPAIGNS;
+
+  return (
+    <div className="space-y-6">
+      {/* Campaign Stats */}
+      <div className="grid grid-cols-4 gap-4">
+        <div className="bg-white rounded-2xl border border-gray-200 p-5">
+          <p className="text-sm text-gray-500 mb-1">Total Campaigns</p>
+          <p className="text-2xl font-bold text-gray-900">{user.totalCampaigns}</p>
+        </div>
+        <div className="bg-white rounded-2xl border border-gray-200 p-5">
+          <p className="text-sm text-gray-500 mb-1">Completed</p>
+          <p className="text-2xl font-bold text-emerald-600">{user.completedCampaigns}</p>
+        </div>
+        <div className="bg-white rounded-2xl border border-gray-200 p-5">
+          <p className="text-sm text-gray-500 mb-1">Active</p>
+          <p className="text-2xl font-bold text-blue-600">{user.activeCampaigns}</p>
+        </div>
+        <div className="bg-white rounded-2xl border border-gray-200 p-5">
+          <p className="text-sm text-gray-500 mb-1">Dispute Rate</p>
+          <p className={`text-2xl font-bold ${user.disputeRate > 10 ? 'text-rose-600' : 'text-gray-900'}`}>{user.disputeRate}%</p>
+        </div>
+      </div>
+
+      {/* Campaign Table */}
+      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div className="p-5 border-b border-gray-100">
+          <h3 className="text-sm font-semibold text-gray-900">Campaign History</h3>
+        </div>
+
+        <table className="w-full">
+          <thead className="bg-gray-50 border-b border-gray-100">
+            <tr>
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-12">#</th>
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Campaign</th>
+              {isInfluencer ? (
+                <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Business</th>
+              ) : (
+                <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Progress</th>
+              )}
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Type</th>
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">{isInfluencer ? 'Payment' : 'Budget'}</th>
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Status</th>
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Date</th>
+              <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3"></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {campaigns.map((campaign, index) => (
+              <tr key={campaign.id} className="hover:bg-gray-50 transition-colors">
+                <td className="px-5 py-4">
+                  <span className="text-sm text-gray-400 font-medium">{index + 1}</span>
+                </td>
+                <td className="px-5 py-4">
+                  <p className="text-sm font-medium text-gray-900">{campaign.name}</p>
+                  <p className="text-xs text-gray-500">{campaign.id}</p>
+                </td>
+                {isInfluencer && 'business' in campaign ? (
+                  <td className="px-5 py-4">
+                    <p className="text-sm text-gray-600">{campaign.business}</p>
+                  </td>
+                ) : !isInfluencer && 'influencers' in campaign ? (
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden max-w-[100px]">
+                        <div
+                          className="h-full bg-emerald-500 rounded-full transition-all"
+                          style={{ width: campaign.influencers > 0 ? `${(campaign.completedInfluencers / campaign.influencers) * 100}%` : '0%' }}
+                        />
+                      </div>
+                      <span className="text-xs text-gray-500 font-medium">{campaign.completedInfluencers}/{campaign.influencers}</span>
+                    </div>
+                  </td>
+                ) : <td></td>}
+                <td className="px-5 py-4">
+                  <span className={`px-2.5 py-1 rounded-lg text-xs font-medium ${
+                    campaign.type === 'public' ? 'bg-emerald-50 text-emerald-700' :
+                    campaign.type === 'invite' ? 'bg-blue-50 text-blue-700' :
+                    'bg-purple-50 text-purple-700'
+                  }`}>
+                    {campaign.type === 'public' ? 'Public' : campaign.type === 'invite' ? 'Invite' : 'Hybrid'}
+                  </span>
+                </td>
+                <td className="px-5 py-4">
+                  <p className="text-sm font-semibold text-gray-900">
+                    SAR {(isInfluencer && 'payment' in campaign ? campaign.payment : 'budget' in campaign ? campaign.budget : 0).toLocaleString()}
+                  </p>
+                  {isInfluencer && 'paymentStatus' in campaign && (
+                    <p className={`text-xs ${
+                      campaign.paymentStatus === 'released' ? 'text-emerald-600' :
+                      campaign.paymentStatus === 'in_escrow' ? 'text-amber-600' :
+                      'text-rose-600'
+                    }`}>
+                      {campaign.paymentStatus === 'released' ? 'Released' :
+                       campaign.paymentStatus === 'in_escrow' ? 'In Escrow' :
+                       'Held'}
+                    </p>
+                  )}
+                  {!isInfluencer && 'spent' in campaign && campaign.spent > 0 && (
+                    <p className="text-xs text-gray-500">Spent: SAR {campaign.spent.toLocaleString()}</p>
+                  )}
+                </td>
+                <td className="px-5 py-4">
+                  <span className={`px-2.5 py-1 rounded-lg text-xs font-medium ${
+                    campaign.status === 'active' ? 'bg-blue-50 text-blue-700' :
+                    campaign.status === 'completed' ? 'bg-emerald-50 text-emerald-700' :
+                    campaign.status === 'cancelled' ? 'bg-gray-100 text-gray-600' :
+                    'bg-rose-50 text-rose-700'
+                  }`}>
+                    {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
+                  </span>
+                </td>
+                <td className="px-5 py-4">
+                  <p className="text-sm text-gray-600">
+                    {new Date(campaign.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    → {new Date(campaign.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </p>
+                </td>
+                <td className="px-5 py-4 text-right">
+                  <button className="h-8 w-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors ml-auto">
+                    <Icons.arrowUpRight className="w-4 h-4 text-gray-500" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// Financial Tab Component
+function FinancialTab({ user, isInfluencer }: { user: User; isInfluencer: boolean }) {
+  const transactions = isInfluencer ? MOCK_INFLUENCER_TRANSACTIONS : MOCK_BUSINESS_TRANSACTIONS;
+
+  return (
+    <div className="space-y-6">
+      {/* Financial Summary */}
+      <div className="grid grid-cols-4 gap-4">
+        {isInfluencer && 'totalEarnings' in user ? (
+          <>
+            <div className="bg-white rounded-2xl border border-gray-200 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                  <Icons.checkCircle className="w-5 h-5 text-emerald-600" />
+                </div>
+                <p className="text-sm text-gray-500">Total Received</p>
+              </div>
+              <p className="text-2xl font-bold text-emerald-600">SAR {user.totalEarnings.toLocaleString()}</p>
+              <p className="text-xs text-gray-500 mt-1">Transferred to your IBAN</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                  <Icons.clock className="w-5 h-5 text-amber-600" />
+                </div>
+                <p className="text-sm text-gray-500">Pending Approval</p>
+              </div>
+              <p className="text-2xl font-bold text-amber-600">SAR {user.pendingBalance.toLocaleString()}</p>
+              <p className="text-xs text-gray-500 mt-1">Awaiting business approval</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center">
+                  <Icons.alertCircle className="w-5 h-5 text-rose-600" />
+                </div>
+                <p className="text-sm text-gray-500">Held (Disputes)</p>
+              </div>
+              <p className="text-2xl font-bold text-rose-600">SAR {(user.heldAmount || 0).toLocaleString()}</p>
+              <p className="text-xs text-gray-500 mt-1">Under investigation</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center">
+                  <Icons.receipt className="w-5 h-5 text-violet-600" />
+                </div>
+                <p className="text-sm text-gray-500">Commission Deducted</p>
+              </div>
+              <p className="text-2xl font-bold text-gray-900">SAR {Math.round(user.totalEarnings * 0.031).toLocaleString()}</p>
+              <p className="text-xs text-gray-500 mt-1">3% platform fee</p>
+            </div>
+          </>
+        ) : 'walletBalance' in user ? (
+          <>
+            <div className="bg-white rounded-2xl border border-gray-200 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                  <Icons.wallet className="w-5 h-5 text-blue-600" />
+                </div>
+                <p className="text-sm text-gray-500">Wallet Balance</p>
+              </div>
+              <p className="text-2xl font-bold text-blue-600">SAR {user.walletBalance.toLocaleString()}</p>
+              <p className="text-xs text-gray-500 mt-1">Available funds</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                  <Icons.clock className="w-5 h-5 text-amber-600" />
+                </div>
+                <p className="text-sm text-gray-500">In Escrow</p>
+              </div>
+              <p className="text-2xl font-bold text-amber-600">SAR {user.currentEscrow.toLocaleString()}</p>
+              <p className="text-xs text-gray-500 mt-1">Reserved for campaigns</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                  <Icons.checkCircle className="w-5 h-5 text-emerald-600" />
+                </div>
+                <p className="text-sm text-gray-500">Total Released</p>
+              </div>
+              <p className="text-2xl font-bold text-gray-900">SAR {user.totalSpent.toLocaleString()}</p>
+              <p className="text-xs text-gray-500 mt-1">Paid to influencers</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center">
+                  <Icons.receipt className="w-5 h-5 text-violet-600" />
+                </div>
+                <p className="text-sm text-gray-500">Commission Paid</p>
+              </div>
+              <p className="text-2xl font-bold text-gray-900">SAR {Math.round(user.totalSpent * 0.031).toLocaleString()}</p>
+              <p className="text-xs text-gray-500 mt-1">3% platform fee</p>
+            </div>
+          </>
+        ) : null}
+      </div>
+
+      {/* IBAN Information - Influencer Only */}
+      {isInfluencer && 'iban' in user && user.iban && (
+        <div className="bg-white rounded-2xl border border-gray-200 p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-gray-900 mb-1">Bank Account (IBAN)</p>
+              <p className="text-lg font-mono text-gray-600">{user.iban}</p>
+            </div>
+            <div className="flex items-center gap-3">
+              {'ibanVerified' in user && user.ibanVerified ? (
+                <span className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-sm font-medium flex items-center gap-2">
+                  <Icons.checkCircle className="w-4 h-4" />
+                  Verified
+                </span>
+              ) : (
+                <span className="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 text-sm font-medium">
+                  Pending Verification
+                </span>
+              )}
+              <button className="h-9 px-4 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 flex items-center gap-2">
+                <Icons.copy className="w-4 h-4" />
+                Copy
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Transaction History */}
+      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div className="p-5 border-b border-gray-100">
+          <h3 className="text-sm font-semibold text-gray-900">Transaction History</h3>
+        </div>
+
+        <table className="w-full">
+          <thead className="bg-gray-50 border-b border-gray-100">
+            <tr>
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-12">#</th>
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Transaction</th>
+              {isInfluencer ? (
+                <>
+                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Campaign / Business</th>
+                  <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Gross</th>
+                  <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Commission</th>
+                  <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Net to IBAN</th>
+                </>
+              ) : (
+                <>
+                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Details</th>
+                  <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Amount</th>
+                </>
+              )}
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Date</th>
+              <th className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Status</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {transactions.map((txn, index) => {
+              const typeConfig: Record<string, { icon: keyof typeof Icons; bg: string; color: string; label: string }> = {
+                // Influencer types
+                paid: { icon: 'checkCircle', bg: 'bg-emerald-50', color: 'text-emerald-600', label: 'Payment Received' },
+                pending_approval: { icon: 'clock', bg: 'bg-amber-50', color: 'text-amber-600', label: 'Pending Approval' },
+                pending_content: { icon: 'clock', bg: 'bg-blue-50', color: 'text-blue-600', label: 'In Review' },
+                in_review: { icon: 'eye', bg: 'bg-blue-50', color: 'text-blue-600', label: 'In Review' },
+                held: { icon: 'alertCircle', bg: 'bg-rose-50', color: 'text-rose-600', label: 'Held' },
+                dispute_resolved: { icon: 'scale', bg: 'bg-violet-50', color: 'text-violet-600', label: 'Dispute Resolved' },
+                // Business types
+                wallet_deposit: { icon: 'plus', bg: 'bg-emerald-50', color: 'text-emerald-600', label: 'Wallet Deposit' },
+                wallet_withdrawal: { icon: 'minus', bg: 'bg-blue-50', color: 'text-blue-600', label: 'Wallet Withdrawal' },
+                escrow_deposit: { icon: 'dollarSign', bg: 'bg-amber-50', color: 'text-amber-600', label: 'Escrow Reserved' },
+                payment_released: { icon: 'checkCircle', bg: 'bg-emerald-50', color: 'text-emerald-600', label: 'Payment Released' },
+                refund: { icon: 'trendingUp', bg: 'bg-emerald-50', color: 'text-emerald-600', label: 'Refund' },
+              };
+              const config = typeConfig[txn.type] || { icon: 'dollarSign' as const, bg: 'bg-gray-100', color: 'text-gray-500', label: txn.type };
+              const Icon = Icons[config.icon];
+
+              const isWalletOp = txn.type === 'wallet_deposit' || txn.type === 'wallet_withdrawal';
+
+              return (
+                <tr key={txn.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-5 py-4">
+                    <span className="text-sm text-gray-400 font-medium">{index + 1}</span>
+                  </td>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${config.bg}`}>
+                        {Icon && <Icon className={`w-4 h-4 ${config.color}`} />}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{txn.id}</p>
+                        <p className="text-xs text-gray-500">{config.label}</p>
+                      </div>
+                    </div>
+                  </td>
+                  {isInfluencer ? (
+                    <>
+                      <td className="px-5 py-4">
+                        <div>
+                          <p className="text-sm text-gray-900">{txn.description}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            {'campaign' in txn && txn.campaign && <span className="text-xs text-blue-600 font-medium">{txn.campaign}</span>}
+                            {'business' in txn && txn.business && <span className="text-xs text-gray-400">• {txn.business}</span>}
+                          </div>
+                          {'transferRef' in txn && txn.transferRef && txn.type === 'paid' && (
+                            <p className="text-xs text-emerald-600 mt-1">Transfer Ref: {txn.transferRef}</p>
+                          )}
+                          {'disputeId' in txn && txn.disputeId && (
+                            <p className="text-xs text-violet-600 mt-1">Dispute: {txn.disputeId}</p>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        {'grossAmount' in txn && txn.grossAmount ? (
+                          <p className="text-sm text-gray-600">SAR {txn.grossAmount.toLocaleString()}</p>
+                        ) : (
+                          <p className="text-sm text-gray-300">—</p>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        {'commission' in txn && txn.commission ? (
+                          <p className="text-sm text-rose-500">-SAR {txn.commission.toLocaleString()}</p>
+                        ) : (
+                          <p className="text-sm text-gray-300">—</p>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        <p className={`text-sm font-semibold ${
+                          txn.type === 'paid' || txn.type === 'dispute_resolved' ? 'text-emerald-600' :
+                          txn.type === 'pending_approval' || txn.type === 'pending_content' || txn.type === 'in_review' ? 'text-amber-600' :
+                          txn.type === 'held' ? 'text-rose-600' :
+                          'text-gray-900'
+                        }`}>
+                          {txn.amount > 0 ? '+' : ''}SAR {Math.abs(txn.amount).toLocaleString()}
+                        </p>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="px-5 py-4">
+                        {isWalletOp ? (
+                          <div>
+                            <p className="text-sm text-gray-900">{txn.description}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              {'paymentMethod' in txn && txn.paymentMethod && (
+                                <span className="text-xs text-gray-500">via {txn.paymentMethod}</span>
+                              )}
+                              {'iban' in txn && txn.iban && (
+                                <span className="text-xs text-gray-500">to {txn.iban}</span>
+                              )}
+                            </div>
+                            {'reference' in txn && txn.reference && (
+                              <p className="text-xs text-gray-400 mt-0.5">Ref: {txn.reference}</p>
+                            )}
+                          </div>
+                        ) : (
+                          <div>
+                            <p className="text-sm text-gray-900">{txn.description}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              {'campaign' in txn && txn.campaign && <span className="text-xs text-blue-600 font-medium">{txn.campaign}</span>}
+                              {'campaignName' in txn && txn.campaignName && <span className="text-xs text-gray-400">• {txn.campaignName}</span>}
+                              {'influencer' in txn && txn.influencer && <span className="text-xs text-violet-600">• {txn.influencer}</span>}
+                            </div>
+                            {'netToInfluencer' in txn && txn.netToInfluencer && (
+                              <p className="text-xs text-gray-400 mt-0.5">Net to influencer: SAR {txn.netToInfluencer.toLocaleString()}</p>
+                            )}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        <p className={`text-sm font-semibold ${
+                          txn.amount > 0 ? 'text-emerald-600' : 'text-gray-900'
+                        }`}>
+                          {txn.amount > 0 ? '+' : ''}SAR {Math.abs(txn.amount).toLocaleString()}
+                        </p>
+                      </td>
+                    </>
+                  )}
+                  <td className="px-5 py-4">
+                    <p className="text-sm text-gray-600">
+                      {new Date(txn.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {new Date(txn.date).getFullYear()}
+                    </p>
+                  </td>
+                  <td className="px-5 py-4 text-center">
+                    <span className={`inline-flex px-2.5 py-1 rounded-lg text-xs font-medium ${
+                      txn.status === 'completed' ? 'bg-emerald-50 text-emerald-700' :
+                      txn.status === 'pending' ? 'bg-amber-50 text-amber-700' :
+                      txn.status === 'held' ? 'bg-rose-50 text-rose-700' :
+                      'bg-gray-100 text-gray-600'
+                    }`}>
+                      {txn.status.charAt(0).toUpperCase() + txn.status.slice(1)}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// Activity Log Tab Component
+function ActivityLogTab({ user, isInfluencer }: { user: User; isInfluencer: boolean }) {
+  const activities = isInfluencer ? MOCK_INFLUENCER_ACTIVITY_LOG : MOCK_BUSINESS_ACTIVITY_LOG;
+
+  const iconConfig: Record<string, { icon: keyof typeof Icons; bg: string; color: string }> = {
+    content_approved: { icon: 'checkCircle', bg: 'bg-emerald-50', color: 'text-emerald-600' },
+    payment_received: { icon: 'dollarSign', bg: 'bg-emerald-50', color: 'text-emerald-600' },
+    content_submitted: { icon: 'image', bg: 'bg-blue-50', color: 'text-blue-600' },
+    contract_signed: { icon: 'fileCheck', bg: 'bg-emerald-50', color: 'text-emerald-600' },
+    campaign_accepted: { icon: 'check', bg: 'bg-blue-50', color: 'text-blue-600' },
+    revision_requested: { icon: 'edit', bg: 'bg-amber-50', color: 'text-amber-600' },
+    withdrawal: { icon: 'wallet', bg: 'bg-violet-50', color: 'text-violet-600' },
+    dispute_opened: { icon: 'alertCircle', bg: 'bg-rose-50', color: 'text-rose-600' },
+    dispute_resolved: { icon: 'checkCircle', bg: 'bg-emerald-50', color: 'text-emerald-600' },
+    verification_approved: { icon: 'shieldCheck', bg: 'bg-emerald-50', color: 'text-emerald-600' },
+    campaign_created: { icon: 'megaphone', bg: 'bg-blue-50', color: 'text-blue-600' },
+    payment_escrowed: { icon: 'dollarSign', bg: 'bg-amber-50', color: 'text-amber-600' },
+    influencer_invited: { icon: 'users', bg: 'bg-blue-50', color: 'text-blue-600' },
+    campaign_completed: { icon: 'checkCircle', bg: 'bg-emerald-50', color: 'text-emerald-600' },
+    refund_received: { icon: 'dollarSign', bg: 'bg-emerald-50', color: 'text-emerald-600' },
+  };
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+      <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-gray-900">Activity Log</h3>
+        <span className="text-xs text-gray-400">Recent activity</span>
+      </div>
+      <div className="divide-y divide-gray-100">
+        {activities.map((activity) => {
+          const config = iconConfig[activity.action] || { icon: 'activity' as const, bg: 'bg-gray-100', color: 'text-gray-500' };
+          const Icon = Icons[config.icon];
+
+          return (
+            <div key={activity.id} className="px-5 py-4 flex items-start gap-4 hover:bg-gray-50">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${config.bg} shrink-0`}>
+                {Icon && <Icon className={`w-5 h-5 ${config.color}`} />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-gray-900">{activity.details}</p>
+                <div className="flex items-center gap-3 mt-1">
+                  <p className="text-xs text-gray-400">
+                    {new Date(activity.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {' • '}
+                    {new Date(activity.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                  {'campaign' in activity && activity.campaign && (
+                    <span className="text-xs text-blue-600 font-medium">{activity.campaign}</span>
+                  )}
+                  {'disputeId' in activity && activity.disputeId && (
+                    <span className="text-xs text-rose-600 font-medium">{activity.disputeId}</span>
+                  )}
+                </div>
+              </div>
+              {'amount' in activity && activity.amount && (
+                <span className={`text-sm font-semibold ${activity.amount > 0 ? 'text-emerald-600' : 'text-gray-900'}`}>
+                  {activity.amount > 0 ? '+' : '-'}SAR {Math.abs(activity.amount).toLocaleString()}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // User Detail View Component
 function UserDetailView({ user, onBack }: { user: User; onBack: () => void }) {
   const [activeTab, setActiveTab] = useState('overview');
@@ -399,10 +1277,6 @@ function UserDetailView({ user, onBack }: { user: User; onBack: () => void }) {
           </div>
         </div>
         <div className="flex items-center gap-2.5">
-          <button className="h-9 px-4 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 flex items-center gap-2 text-sm text-gray-600 transition-colors">
-            <Icons.message className="w-4 h-4" />
-            Send Message
-          </button>
           <button className="h-9 px-4 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 flex items-center gap-2 text-sm text-gray-600 transition-colors">
             <Icons.edit className="w-4 h-4" />
             Edit
@@ -501,13 +1375,12 @@ function UserDetailView({ user, onBack }: { user: User; onBack: () => void }) {
             ))}
           </div>
 
-          {/* Tab Content Placeholder */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">
-            <Icons.user className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">User Profile</h3>
-            <p className="text-sm text-gray-500">Complete user details for {user.name}</p>
-            <p className="text-xs text-gray-400 mt-2">Active tab: {activeTab}</p>
-          </div>
+          {/* Tab Content */}
+          {activeTab === 'overview' && <OverviewTab user={user} isInfluencer={isInfluencer} />}
+          {activeTab === 'social' && isInfluencer && <SocialAccountsTab user={user} />}
+          {activeTab === 'campaigns' && <CampaignsTab user={user} isInfluencer={isInfluencer} />}
+          {activeTab === 'financial' && <FinancialTab user={user} isInfluencer={isInfluencer} />}
+          {activeTab === 'activity' && <ActivityLogTab user={user} isInfluencer={isInfluencer} />}
         </div>
 
         {/* Action Sidebar */}
@@ -558,16 +1431,6 @@ function UserDetailView({ user, onBack }: { user: User; onBack: () => void }) {
               <Icons.message className="w-4 h-4" />
               Send Notification
             </button>
-
-            <button className="w-full h-11 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-600 font-medium flex items-center justify-center gap-2 transition-colors">
-              <Icons.shield className="w-4 h-4" />
-              Override Verification
-            </button>
-
-            <button className="w-full h-11 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-600 font-medium flex items-center justify-center gap-2 transition-colors">
-              <Icons.externalLink className="w-4 h-4" />
-              View in App
-            </button>
           </div>
 
           {/* Admin Notes */}
@@ -584,5 +1447,13 @@ function UserDetailView({ user, onBack }: { user: User; onBack: () => void }) {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function UsersPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen bg-gray-100"><Sidebar active="users" setActive={() => {}} /><div className="flex-1 p-5"><UserListSkeleton /></div></div>}>
+      <UsersPageContent />
+    </Suspense>
   );
 }

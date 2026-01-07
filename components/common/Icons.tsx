@@ -385,4 +385,168 @@ export const Icons = {
       <path d="m9.5 9.5 5 5"/>
     </svg>
   ),
+
+  // Additional icons for campaigns
+  chevronRight: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="m9 18 6-6-6-6"/>
+    </svg>
+  ),
+
+  globe: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+      <path d="M2 12h20"/>
+    </svg>
+  ),
+
+  lock: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <rect width="18" height="11" x="3" y="11" rx="2"/>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>
+  ),
+
+  unlock: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <rect width="18" height="11" x="3" y="11" rx="2"/>
+      <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+    </svg>
+  ),
+
+  penLine: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M12 20h9"/>
+      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+    </svg>
+  ),
+
+  clockPlus: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M12 6v6"/>
+      <path d="M16 14h-4"/>
+      <path d="M19 2v4"/>
+      <path d="M17 4h4"/>
+    </svg>
+  ),
+
+  timer: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <line x1="10" x2="14" y1="2" y2="2"/>
+      <line x1="12" x2="15" y1="14" y2="11"/>
+      <circle cx="12" cy="14" r="8"/>
+    </svg>
+  ),
+
+  info: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M12 16v-4"/>
+      <path d="M12 8h.01"/>
+    </svg>
+  ),
+
+  target: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <circle cx="12" cy="12" r="10"/>
+      <circle cx="12" cy="12" r="6"/>
+      <circle cx="12" cy="12" r="2"/>
+    </svg>
+  ),
+
+  plus: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M12 5v14"/>
+      <path d="M5 12h14"/>
+    </svg>
+  ),
+
+  minus: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M5 12h14"/>
+    </svg>
+  ),
+
+  // Social Media Icons
+  instagram: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <rect width="20" height="20" x="2" y="2" rx="5"/>
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+      <path d="M17.5 6.5h.01"/>
+    </svg>
+  ),
+
+  youtube: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+    </svg>
+  ),
+
+  tiktok: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+    </svg>
+  ),
+
+  twitter: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </svg>
+  ),
+
+  snapchat: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12.17 2c3.24.02 5.6 2.1 6.27 5.34.1.47.14.97.13 1.46 0 .65-.05 1.3-.1 1.94-.02.28.08.4.34.48.38.12.77.22 1.14.37.28.11.42.33.4.63-.02.28-.2.46-.47.54-.39.12-.8.18-1.19.3-.32.1-.6.27-.83.51-.55.58-.98 1.25-1.54 1.8-.26.26-.57.45-.93.54a3.1 3.1 0 0 1-1.07.09c-.22-.01-.37.06-.52.22-.42.43-.93.73-1.5.93-.64.23-1.3.29-1.97.17a4.2 4.2 0 0 1-1.43-.6c-.2-.13-.38-.14-.6-.04-.64.3-1.32.44-2.03.4-.42-.03-.81-.16-1.15-.4-.5-.37-.87-.86-1.2-1.38-.2-.31-.43-.6-.72-.83-.22-.17-.47-.3-.73-.38-.4-.13-.82-.2-1.21-.33-.27-.08-.45-.26-.47-.54-.03-.3.11-.52.4-.63.36-.14.74-.24 1.1-.36.3-.1.43-.24.4-.56-.05-.62-.1-1.24-.1-1.86 0-.52.02-1.04.13-1.55C4.43 4.2 6.73 2.06 9.87 2h2.3z"/>
+    </svg>
+  ),
+
+  // Additional icons for User Management
+  arrowUpRight: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M7 17 17 7"/>
+      <path d="M7 7h10v10"/>
+    </svg>
+  ),
+
+  copy: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <rect width="14" height="14" x="8" y="8" rx="2"/>
+      <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+    </svg>
+  ),
+
+  mapPin: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+      <circle cx="12" cy="10" r="3"/>
+    </svg>
+  ),
+
+  mail: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <rect width="20" height="16" x="2" y="4" rx="2"/>
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+    </svg>
+  ),
+
+  phone: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+    </svg>
+  ),
+
+  starOutline: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
+  ),
+
+  trendingDown: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="m22 17-8.5-8.5-5 5L2 7"/>
+      <path d="M16 17h6v-6"/>
+    </svg>
+  ),
 };
