@@ -39,6 +39,7 @@ export const SIDEBAR_GROUPS: SidebarGroup[] = [
   {
     label: 'FINANCIAL',
     items: [
+      { id: 'transactions', label: 'Transactions', icon: 'dollarSign' },
       { id: 'financial', label: 'Financial Management', icon: 'receipt' },
       { id: 'payouts', label: 'Payouts', icon: 'wallet', count: 5, color: 'bg-emerald-500' },
     ],

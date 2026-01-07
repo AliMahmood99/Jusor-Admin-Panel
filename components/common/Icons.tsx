@@ -365,6 +365,15 @@ export const Icons = {
     </svg>
   ),
 
+  arrowLeftRight: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M8 3 4 7l4 4"/>
+      <path d="M4 7h16"/>
+      <path d="m16 21 4-4-4-4"/>
+      <path d="M20 17H4"/>
+    </svg>
+  ),
+
   star: (props: IconProps) => (
     <svg {...props} viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -583,6 +592,28 @@ export const Icons = {
     <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
       <path d="m22 17-8.5-8.5-5 5L2 7"/>
       <path d="M16 17h6v-6"/>
+    </svg>
+  ),
+
+  printer: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M6 9V2h12v7"/>
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+      <rect width="12" height="8" x="6" y="14"/>
+    </svg>
+  ),
+
+  creditCard: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <rect width="20" height="14" x="2" y="5" rx="2"/>
+      <path d="M2 10h20"/>
+    </svg>
+  ),
+
+  arrowDownLeft: (props: IconProps) => (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M17 7 7 17"/>
+      <path d="M17 17H7V7"/>
     </svg>
   ),
 };
