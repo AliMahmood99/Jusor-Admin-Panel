@@ -105,7 +105,7 @@ export default function DecisionModal({ dispute, onClose, onSubmit }: DecisionMo
                 {
                   id: 'influencer',
                   label: 'Full to Influencer',
-                  desc: `Release SAR ${(dispute.amountInDispute || 0).toLocaleString()} to ${dispute.respondent.name}`,
+                  desc: `Release SAR ${(dispute.amountInDispute || 0).toLocaleString()} to ${dispute.influencer.name}`,
                   icon: 'user',
                   color: 'violet',
                 },
@@ -119,7 +119,7 @@ export default function DecisionModal({ dispute, onClose, onSubmit }: DecisionMo
                 {
                   id: 'business',
                   label: 'Full Refund',
-                  desc: `Return SAR ${(dispute.amountInDispute || 0).toLocaleString()} to ${dispute.initiator.name}`,
+                  desc: `Return SAR ${(dispute.amountInDispute || 0).toLocaleString()} to ${dispute.business.name}`,
                   icon: 'building',
                   color: 'rose',
                 },

@@ -9,7 +9,7 @@ import type { DisputeParty } from '@/types';
 
 interface DisputePartyCardProps {
   party: DisputeParty;
-  role: 'Initiator' | 'Respondent';
+  role: string;
 }
 
 export default function DisputePartyCard({ party, role }: DisputePartyCardProps) {

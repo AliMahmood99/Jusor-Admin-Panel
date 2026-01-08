@@ -33,8 +33,8 @@ export default function TimelineSection({ dispute }: TimelineSectionProps) {
     },
     {
       label: 'Admin review',
-      time: dispute.status === 'in_review' ? dispute.updatedAt : null,
-      status: dispute.status === 'in_review' ? 'current' : dispute.status === 'resolved' ? 'completed' : 'pending',
+      time: dispute.status === 'review' ? dispute.updatedAt : null,
+      status: dispute.status === 'review' ? 'current' : dispute.status === 'resolved' ? 'completed' : 'pending',
       icon: Icons.gavel,
     },
     {

@@ -15,6 +15,7 @@ import DisputePartyCard from '@/components/disputes/DisputePartyCard';
 import EvidenceSection from '@/components/disputes/EvidenceSection';
 import TimelineSection from '@/components/disputes/TimelineSection';
 import DecisionModal from '@/components/disputes/DecisionModal';
+import ContractRequirements from '@/components/disputes/ContractRequirements';
 import { MOCK_DISPUTES } from '@/lib/constants';
 
 export default function DisputeDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -110,7 +111,7 @@ export default function DisputeDetailsPage({ params }: { params: Promise<{ id: s
           <div>
             <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Created</p>
             <p className="text-sm font-medium text-gray-900">
-              {new Date(dispute.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              {new Date(dispute.openedAt || dispute.createdAt || new Date()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </p>
           </div>
           <div className="w-px h-10 bg-gray-200" />
@@ -153,8 +154,8 @@ export default function DisputeDetailsPage({ params }: { params: Promise<{ id: s
               <div className="space-y-5">
                 {/* Parties */}
                 <div className="grid grid-cols-2 gap-5">
-                  <DisputePartyCard party={dispute.initiator} role="Initiator" />
-                  <DisputePartyCard party={dispute.respondent} role="Respondent" />
+                  <DisputePartyCard party={dispute.business} role="Business" />
+                  <DisputePartyCard party={dispute.influencer} role="Influencer" />
                 </div>
 
                 {/* Dispute Details */}
@@ -162,12 +163,12 @@ export default function DisputeDetailsPage({ params }: { params: Promise<{ id: s
                   <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <Icons.alertCircle className="w-4 h-4 text-rose-500" />
                     Dispute Reason
-                    <span className="text-xs font-normal text-gray-400">by {dispute.initiator.name}</span>
+                    <span className="text-xs font-normal text-gray-400">by {dispute.initiator?.name || dispute.business.name}</span>
                   </h3>
                   <p className="text-gray-700 leading-relaxed mb-4">{dispute.description}</p>
                   <p className="text-xs text-gray-400">
                     Submitted:{' '}
-                    {new Date(dispute.createdAt).toLocaleDateString('en-US', {
+                    {new Date(dispute.openedAt || dispute.createdAt || new Date()).toLocaleDateString('en-US', {
                       month: 'long',
                       day: 'numeric',
                       year: 'numeric',
@@ -176,6 +177,11 @@ export default function DisputeDetailsPage({ params }: { params: Promise<{ id: s
                     })}
                   </p>
                 </div>
+
+                {/* Contract Requirements */}
+                {dispute.requirements && dispute.requirements.length > 0 && (
+                  <ContractRequirements requirements={dispute.requirements} />
+                )}
 
                 {/* Resolution (if resolved) */}
                 {dispute.status === 'resolved' && dispute.resolutionNote && (
@@ -193,14 +199,14 @@ export default function DisputeDetailsPage({ params }: { params: Promise<{ id: s
             {activeTab === 'evidence' && (
               <div className="grid grid-cols-2 gap-5">
                 <EvidenceSection
-                  evidence={dispute.evidence.filter((e) => e.uploadedBy === dispute.initiator.id)}
-                  partyName={dispute.initiator.name}
-                  partyType={dispute.initiator.type}
+                  evidence={dispute.evidence.filter((e) => e.uploadedBy === dispute.business.id)}
+                  partyName={dispute.business.name}
+                  partyType={dispute.business.type}
                 />
                 <EvidenceSection
-                  evidence={dispute.evidence.filter((e) => e.uploadedBy === dispute.respondent.id)}
-                  partyName={dispute.respondent.name}
-                  partyType={dispute.respondent.type}
+                  evidence={dispute.evidence.filter((e) => e.uploadedBy === dispute.influencer.id)}
+                  partyName={dispute.influencer.name}
+                  partyType={dispute.influencer.type}
                 />
               </div>
             )}
@@ -209,7 +215,7 @@ export default function DisputeDetailsPage({ params }: { params: Promise<{ id: s
           </div>
 
           {/* Action Sidebar */}
-          {dispute.status !== 'resolved' && dispute.status !== 'closed' && (
+          {dispute.status !== 'resolved' && (
             <div className="w-80 bg-white border-l border-gray-200 p-6 shrink-0">
               <h3 className="text-sm font-semibold text-gray-900 mb-4">Quick Actions</h3>
 

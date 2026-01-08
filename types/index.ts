@@ -78,21 +78,27 @@ export interface PendingAction {
 }
 
 // Dispute Types
-export type DisputeStatus = 'open' | 'in_review' | 'resolved' | 'closed';
+export type DisputeStatus = 'new' | 'evidence' | 'review' | 'resolved' | 'escalated';
 export type DisputePriority = 'low' | 'medium' | 'high' | 'critical';
 export type DisputeType = 'payment' | 'content' | 'communication' | 'contract' | 'other';
+export type DisputeCategory = 'content_specs' | 'payment_issue' | 'deadline_missed' | 'contract_breach' | 'quality_concern' | 'other';
 
 export interface DisputeParty {
   id: string;
   name: string;
   type: 'influencer' | 'business';
   avatar?: string;
+  handle?: string;
+  rating?: number;
+  campaigns?: number;
+  cr?: string;
 }
 
 export interface DisputeMessage {
   id: string;
   userId: string;
   userName: string;
+  userType: 'influencer' | 'business' | 'admin';
   message: string;
   timestamp: string;
   isAdmin?: boolean;
@@ -100,32 +106,90 @@ export interface DisputeMessage {
 
 export interface DisputeEvidence {
   id: string;
-  type: 'image' | 'document' | 'screenshot' | 'video';
+  type: 'image' | 'document' | 'screenshot' | 'video' | 'pdf';
   url: string;
+  fileName: string;
+  fileSize: string;
   uploadedBy: string;
   uploadedAt: string;
   description?: string;
+}
+
+export interface ContractRequirement {
+  label: string;
+  met: boolean;
+}
+
+export interface DisputeResolution {
+  type: 'influencer' | 'business' | 'split';
+  percentage?: number;
+  influencer: number;
+  business: number;
+  reasoning: string;
+  decidedAt: string;
+  decidedBy: string;
+}
+
+export interface DisputeCampaign {
+  id: string;
+  name: string;
+  type: 'Public' | 'Invite Only' | 'Hybrid';
 }
 
 export interface Dispute {
   id: string;
   title: string;
   description: string;
-  campaignId: string;
-  campaignName: string;
+  reason: string;
+  response?: string;
+
+  // Campaign & Parties
+  campaign: DisputeCampaign;
+  influencer: DisputeParty;
+  business: DisputeParty;
+
+  // Status & Priority
   status: DisputeStatus;
   priority: DisputePriority;
-  type: DisputeType;
-  createdAt: string;
+  category: DisputeCategory;
+  categoryLabel: string;
+
+  // Time Tracking
+  openedAt: string;
+  deadline: string;
+  daysOpen: number;
+  hoursRemaining: number;
   updatedAt: string;
   resolvedAt?: string;
-  initiator: DisputeParty;
-  respondent: DisputeParty;
+
+  // Assignment
   assignedAdmin?: string;
+  assignedTo?: {
+    id: string;
+    name: string;
+    avatar: string;
+  };
+
+  // Communication & Evidence
   messages: DisputeMessage[];
   evidence: DisputeEvidence[];
-  amountInDispute?: number;
-  resolution?: string;
+
+  // Financial
+  amountInDispute: number;
+
+  // Contract Requirements (NEW)
+  requirements?: ContractRequirement[];
+
+  // Resolution
+  resolution?: DisputeResolution;
+
+  // Legacy fields for backward compatibility
+  type?: DisputeType;
+  createdAt?: string;
+  initiator?: DisputeParty;
+  respondent?: DisputeParty;
+  campaignId?: string;
+  campaignName?: string;
   resolutionNote?: string;
 }
 

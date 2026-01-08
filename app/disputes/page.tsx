@@ -11,7 +11,9 @@ import Sidebar from '@/components/layout/Sidebar';
 import { Icons } from '@/components/common/Icons';
 import DisputeStatusBadge from '@/components/disputes/DisputeStatusBadge';
 import DisputePriorityBadge from '@/components/disputes/DisputePriorityBadge';
+import UrgentDisputeCard from '@/components/disputes/UrgentDisputeCard';
 import { MOCK_DISPUTES } from '@/lib/constants';
+import { getDisputeStats, getUrgentDisputes } from '@/lib/disputeUtils';
 import type { Dispute, DisputeStatus, DisputePriority } from '@/types';
 
 export default function DisputesPage() {
@@ -30,27 +32,25 @@ export default function DisputesPage() {
       return (
         dispute.id.toLowerCase().includes(query) ||
         dispute.title.toLowerCase().includes(query) ||
-        dispute.initiator.name.toLowerCase().includes(query) ||
-        dispute.respondent.name.toLowerCase().includes(query)
+        dispute.business.name.toLowerCase().includes(query) ||
+        dispute.influencer.name.toLowerCase().includes(query) ||
+        (dispute.campaign?.name || '').toLowerCase().includes(query)
       );
     }
     return true;
   });
 
   // Calculate stats
-  const stats = {
-    totalOpen: MOCK_DISPUTES.filter(d => d.status !== 'resolved' && d.status !== 'closed').length,
-    inReview: MOCK_DISPUTES.filter(d => d.status === 'in_review').length,
-    resolved: MOCK_DISPUTES.filter(d => d.status === 'resolved').length,
-    totalValue: MOCK_DISPUTES.filter(d => d.status !== 'resolved').reduce((sum, d) => sum + (d.amountInDispute || 0), 0),
-  };
+  const stats = getDisputeStats(MOCK_DISPUTES);
+  const urgentDisputes = getUrgentDisputes(MOCK_DISPUTES);
 
   const statusCounts = {
     all: MOCK_DISPUTES.length,
-    open: MOCK_DISPUTES.filter(d => d.status === 'open').length,
-    in_review: MOCK_DISPUTES.filter(d => d.status === 'in_review').length,
+    new: MOCK_DISPUTES.filter(d => d.status === 'new').length,
+    evidence: MOCK_DISPUTES.filter(d => d.status === 'evidence').length,
+    review: MOCK_DISPUTES.filter(d => d.status === 'review').length,
     resolved: MOCK_DISPUTES.filter(d => d.status === 'resolved').length,
-    closed: MOCK_DISPUTES.filter(d => d.status === 'closed').length,
+    escalated: MOCK_DISPUTES.filter(d => d.status === 'escalated').length,
   };
 
   return (
@@ -85,10 +85,10 @@ export default function DisputesPage() {
           {/* Stats Cards */}
           <div className="grid grid-cols-4 gap-4">
             {[
-              { label: 'Total Open', value: stats.totalOpen, icon: 'scale', color: 'blue', change: '+2 today' },
-              { label: 'In Review', value: stats.inReview, icon: 'clock', color: 'amber', change: '1 urgent' },
-              { label: 'Resolved', value: stats.resolved, icon: 'checkCircle', color: 'emerald', change: '94% rate' },
-              { label: 'Value at Stake', value: `SAR ${(stats.totalValue / 1000).toFixed(0)}K`, icon: 'dollarSign', color: 'violet', change: `${stats.totalOpen} cases` },
+              { label: 'Total Open', value: stats.totalOpen, icon: 'scale', color: 'blue', change: `${urgentDisputes.length} urgent` },
+              { label: 'Awaiting Evidence', value: stats.awaitingEvidence, icon: 'fileText', color: 'amber', change: 'Pending' },
+              { label: 'Decision Due', value: stats.decisionDue, icon: 'clock', color: 'rose', change: '< 72h' },
+              { label: 'Value at Stake', value: `SAR ${(stats.valueAtStake / 1000).toFixed(0)}K`, icon: 'dollarSign', color: 'violet', change: `${stats.totalOpen} cases` },
             ].map((stat, i) => {
               const IconComp = Icons[stat.icon as keyof typeof Icons];
               return (
@@ -113,10 +113,11 @@ export default function DisputesPage() {
               <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
                 {[
                   { id: 'all', label: 'All' },
-                  { id: 'open', label: 'Open', color: 'rose' },
-                  { id: 'in_review', label: 'Review', color: 'blue' },
+                  { id: 'new', label: 'New', color: 'rose' },
+                  { id: 'evidence', label: 'Evidence', color: 'amber' },
+                  { id: 'review', label: 'Review', color: 'blue' },
                   { id: 'resolved', label: 'Resolved', color: 'emerald' },
-                  { id: 'closed', label: 'Closed', color: 'gray' },
+                  { id: 'escalated', label: 'Escalated', color: 'purple' },
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -163,6 +164,30 @@ export default function DisputesPage() {
               </div>
             </div>
           </div>
+
+          {/* Urgent Disputes Section */}
+          {statusFilter === 'all' && urgentDisputes.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Icons.alert className="w-5 h-5 text-rose-600" />
+                  <h2 className="text-lg font-bold text-slate-900">Urgent Disputes</h2>
+                  <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-xs font-semibold">
+                    Requires Immediate Attention
+                  </span>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                {urgentDisputes.map((dispute) => (
+                  <UrgentDisputeCard
+                    key={dispute.id}
+                    dispute={dispute}
+                    onSelect={() => router.push(`/disputes/${dispute.id}`)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Disputes Table */}
           <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -212,16 +237,16 @@ export default function DisputesPage() {
                         <div className="flex items-center gap-2">
                           <div className="flex -space-x-2">
                             <div className="w-8 h-8 rounded-full bg-violet-500 flex items-center justify-center text-white text-xs font-semibold ring-2 ring-white">
-                              {dispute.initiator.type === 'influencer' ? (dispute.initiator.avatar || 'I') : 'B'}
+                              {dispute.influencer.avatar || 'I'}
                             </div>
                             <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-semibold ring-2 ring-white">
-                              {dispute.respondent.type === 'business' ? 'B' : (dispute.respondent.avatar || 'I')}
+                              {dispute.business.avatar || 'B'}
                             </div>
                           </div>
                           <div className="text-xs text-gray-500">
-                            <span className="text-violet-600">{dispute.initiator.name.split(' ')[0]}</span>
+                            <span className="text-violet-600">{dispute.influencer.name.split(' ')[0]}</span>
                             <span className="mx-1">vs</span>
-                            <span className="text-blue-600">{dispute.respondent.name.split(' ')[0]}</span>
+                            <span className="text-blue-600">{dispute.business.name.split(' ')[0]}</span>
                           </div>
                         </div>
                       </td>
