@@ -17,9 +17,9 @@ import { mockTransactions } from '@/lib/mockTransactionData';
 import { formatDateTime, getStatusConfig } from '@/lib/transactionUtils';
 
 interface TransactionDetailPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function TransactionDetailPage({ params }: TransactionDetailPageProps) {
@@ -28,8 +28,11 @@ export default function TransactionDetailPage({ params }: TransactionDetailPageP
   const [copied, setCopied] = useState(false);
   const [adminNote, setAdminNote] = useState('');
 
+  // Unwrap params Promise
+  const { id } = React.use(params);
+
   // Find transaction by ID
-  const transaction = mockTransactions.find(txn => txn.id === params.id);
+  const transaction = mockTransactions.find(txn => txn.id === id);
 
   if (!transaction) {
     return (
