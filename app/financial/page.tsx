@@ -7,47 +7,143 @@
 
 import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
+import AdminDropdown from '@/components/layout/AdminDropdown';
+import { Icons, IconProps } from '@/components/common/Icons';
 
 // ============================================
-// ICONS
+// TYPES
 // ============================================
-const Icons = {
-  arrowLeft: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m15 18-6-6 6-6"/></svg>,
-  arrowRight: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m9 18 6-6-6-6"/></svg>,
-  arrowDown: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m6 9 6 6 6-6"/></svg>,
-  search: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
-  download: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>,
-  refresh: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>,
-  eye: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>,
-  dollarSign: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
-  wallet: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>,
-  creditCard: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>,
-  banknote: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>,
-  arrowUpRight: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>,
-  arrowDownLeft: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17 7 7 17"/><path d="M17 17H7V7"/></svg>,
-  arrowLeftRight: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>,
-  receipt: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg>,
-  trendingUp: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></svg>,
-  trendingDown: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m22 17-8.5-8.5-5 5L2 7"/><path d="M16 17h6v-6"/></svg>,
-  percent: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>,
-  pieChart: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>,
-  barChart: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>,
-  lineChart: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>,
-  checkCircle: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m22 4-10 10-3-3"/></svg>,
-  clock: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>,
-  alertCircle: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>,
-  xCircle: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>,
-  user: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>,
-  building: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>,
-  megaphone: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m3 11 18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>,
-  calendar: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>,
-  copy: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>,
-  externalLink: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="m10 14 11-11"/></svg>,
-  fileText: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>,
-  printer: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>,
-  send: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>,
-  x: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>,
-};
+
+type TransactionType = 'escrow_release' | 'escrow_deposit' | 'wallet_deposit' | 'wallet_withdrawal' | 'commission_collected' | 'refund_to_wallet' | 'partial_refund';
+type TransactionStatus = 'completed' | 'pending' | 'processing' | 'failed';
+type ChartMetric = 'revenue' | 'commissions' | 'transactions';
+type TimePeriod = 'daily' | 'weekly' | 'monthly';
+
+interface TransactionTypeConfig {
+  label: string;
+  icon: (props: IconProps) => React.JSX.Element;
+  bgColor: string;
+  textColor: string;
+  iconBg: string;
+}
+
+interface StatusConfig {
+  label: string;
+  icon: (props: IconProps) => React.JSX.Element;
+  bgColor: string;
+  textColor: string;
+}
+
+type TransactionCategory = 'campaign_payment' | 'wallet_ops' | 'commission' | 'refund';
+type PartyType = 'business' | 'influencer' | 'external' | 'escrow' | 'platform' | 'bank_account';
+
+interface TransactionParty {
+  id: string | null;
+  name: string;
+  type: PartyType;
+  handle?: string;
+}
+
+interface TransactionCampaign {
+  id: string;
+  name: string;
+}
+
+interface Transaction {
+  id: string;
+  type: TransactionType;
+  category: TransactionCategory;
+  status: TransactionStatus;
+  amount: number;
+  commission: number;
+  netAmount: number;
+  currency: string;
+  from: TransactionParty;
+  to: TransactionParty;
+  campaign: TransactionCampaign | null;
+  transferRef?: string;
+  paymentMethod?: string;
+  createdAt: string;
+  completedAt?: string;
+  description: string;
+  relatedDispute?: string;
+  failureReason?: string;
+}
+
+interface FilterState {
+  search: string;
+  category: TransactionCategory | 'all';
+  status: TransactionStatus | 'all';
+  dateFrom: string;
+  dateTo: string;
+}
+
+interface PeriodDataItem {
+  label: string;
+  revenue: number;
+  commissions: number;
+  transactions: number;
+}
+
+interface PeriodData {
+  data: PeriodDataItem[];
+  prevData?: PeriodDataItem[];
+}
+
+interface BreakdownSegment {
+  label: string;
+  value: number;
+  color: string;
+  amount?: number;
+}
+
+interface RevenueDataItem {
+  label: string;
+  revenue: number;
+  transactions: number;
+  volume: number;
+  commissions?: number;
+}
+
+interface RevenueTimePeriod {
+  totalRevenue: number;
+  prevRevenue: number;
+  totalTransactions: number;
+  totalVolume: number;
+  data: RevenueDataItem[];
+  prevData?: RevenueDataItem[];
+}
+
+interface ColorClasses {
+  bg: string;
+  text: string;
+  border?: string;
+  iconBg?: string;
+}
+
+interface TransactionFiltersProps {
+  filters: FilterState;
+  setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
+}
+
+interface TransactionsTableProps {
+  transactions: Transaction[];
+  onSelectTransaction: (transaction: Transaction) => void;
+}
+
+interface TransactionsListProps {
+  onSelectTransaction: (transaction: Transaction) => void;
+  onNavigateToReports: () => void;
+}
+
+interface TransactionDetailProps {
+  transaction: Transaction;
+  onBack: () => void;
+}
+
+interface RevenueReportsProps {
+  onBack: () => void;
+}
 
 // ============================================
 // HELPER FUNCTIONS
@@ -85,8 +181,8 @@ const formatDateTime = (dateString: string) => {
 };
 
 // Transaction Type Configuration
-const getTransactionTypeConfig = (type: string) => {
-  const config: any = {
+const getTransactionTypeConfig = (type: string): TransactionTypeConfig => {
+  const config: Record<string, TransactionTypeConfig> = {
     escrow_release: {
       label: 'Escrow Release',
       icon: Icons.arrowUpRight,
@@ -141,8 +237,8 @@ const getTransactionTypeConfig = (type: string) => {
 };
 
 // Status Configuration
-const getStatusConfig = (status: string) => {
-  const config: any = {
+const getStatusConfig = (status: string): StatusConfig => {
+  const config: Record<string, StatusConfig> = {
     completed: {
       label: 'Completed',
       icon: Icons.checkCircle,
@@ -174,10 +270,10 @@ const getStatusConfig = (status: string) => {
 // ============================================
 // MOCK DATA
 // ============================================
-const mockTransactions = [
+const mockTransactions: Transaction[] = [
   {
     id: 'TXN-2026-000147',
-    type: 'escrow_release',
+    type: 'escrow_release' as const,
     category: 'campaign_payment',
     status: 'completed',
     amount: 15000,
@@ -353,7 +449,7 @@ const summaryStats = {
 };
 
 // Period-based Revenue Data
-const periodData: any = {
+const periodData: Record<string, RevenueTimePeriod> = {
   week: {
     totalRevenue: 42500,
     prevRevenue: 38200,
@@ -449,7 +545,7 @@ const periodData: any = {
 };
 
 // Breakdown data by different views
-const breakdownData: any = {
+const breakdownData: Record<string, BreakdownSegment[]> = {
   source: [
     { label: 'Business Commission', value: 52, color: '#3B82F6', amount: 96200 },
     { label: 'Influencer Commission', value: 48, color: '#10B981', amount: 88800 },
@@ -460,11 +556,6 @@ const breakdownData: any = {
     { label: 'Food', value: 20, color: '#F59E0B', amount: 37000 },
     { label: 'Beauty', value: 12, color: '#8B5CF6', amount: 22200 },
     { label: 'Other', value: 8, color: '#64748B', amount: 14800 },
-  ],
-  user_type: [
-    { label: 'Enterprise', value: 45, color: '#3B82F6', amount: 83250 },
-    { label: 'SMB', value: 35, color: '#10B981', amount: 64750 },
-    { label: 'Startup', value: 20, color: '#F59E0B', amount: 37000 },
   ],
 };
 
@@ -515,7 +606,7 @@ const StatsCards = () => {
     },
   ];
 
-  const colorClasses: any = {
+  const colorClasses: Record<string, ColorClasses> = {
     blue: { bg: 'bg-blue-50', iconBg: 'bg-blue-100', text: 'text-blue-600' },
     emerald: { bg: 'bg-emerald-50', iconBg: 'bg-emerald-100', text: 'text-emerald-600' },
     amber: { bg: 'bg-amber-50', iconBg: 'bg-amber-100', text: 'text-amber-600' },
@@ -559,8 +650,8 @@ const StatsCards = () => {
 // ============================================
 // FILTERS COMPONENT
 // ============================================
-const TransactionFilters = ({ filters, setFilters }: any) => {
-  const categories = [
+const TransactionFilters = ({ filters, setFilters }: TransactionFiltersProps) => {
+  const categories: { id: TransactionCategory | 'all'; label: string }[] = [
     { id: 'all', label: 'All Transactions' },
     { id: 'campaign_payment', label: 'Campaign Payments' },
     { id: 'wallet_ops', label: 'Wallet Operations' },
@@ -605,7 +696,7 @@ const TransactionFilters = ({ filters, setFilters }: any) => {
           {/* Status Filter */}
           <select
             value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+            onChange={(e) => setFilters({ ...filters, status: e.target.value as TransactionStatus | 'all' })}
             className="h-10 px-4 rounded-xl border border-slate-200 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">All Status</option>
@@ -646,7 +737,7 @@ const TransactionFilters = ({ filters, setFilters }: any) => {
 // ============================================
 // TRANSACTIONS TABLE COMPONENT
 // ============================================
-const TransactionsTable = ({ transactions, onSelectTransaction }: any) => {
+const TransactionsTable = ({ transactions, onSelectTransaction }: TransactionsTableProps) => {
   return (
     <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
       <table className="w-full">
@@ -664,7 +755,7 @@ const TransactionsTable = ({ transactions, onSelectTransaction }: any) => {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
-          {transactions.map((txn: any, index: number) => {
+          {transactions.map((txn: Transaction, index: number) => {
             const typeConfig = getTransactionTypeConfig(txn.type);
             const statusConfig = getStatusConfig(txn.status);
 
@@ -806,8 +897,8 @@ const TransactionsTable = ({ transactions, onSelectTransaction }: any) => {
 // ============================================
 // TRANSACTIONS LIST COMPONENT
 // ============================================
-const TransactionsList = ({ onSelectTransaction, onNavigateToReports }: any) => {
-  const [filters, setFilters] = useState({
+const TransactionsList = ({ onSelectTransaction, onNavigateToReports }: TransactionsListProps) => {
+  const [filters, setFilters] = useState<FilterState>({
     category: 'all',
     status: 'all',
     search: '',
@@ -831,34 +922,34 @@ const TransactionsList = ({ onSelectTransaction, onNavigateToReports }: any) => 
   });
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-slate-50">
+    <div className="flex-1 flex flex-col overflow-hidden bg-gray-50 ml-60">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-8 py-6 shrink-0">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Financial Management</h1>
-            <p className="text-slate-500 mt-1">Monitor all platform transactions and revenue</p>
-          </div>
-          <div className="flex items-center gap-3">
-            {onNavigateToReports && (
-              <button
-                onClick={onNavigateToReports}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-sm font-medium hover:bg-slate-200 transition-colors"
-              >
-                <Icons.pieChart className="w-4 h-4" />
-                Revenue Reports
-              </button>
-            )}
-            <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors">
-              <Icons.refresh className="w-4 h-4" />
-              Refresh
-            </button>
-          </div>
+      <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-10 shrink-0">
+        <div>
+          <h1 className="text-lg font-semibold text-gray-900">Financial Management</h1>
+          <p className="text-sm text-gray-500">Monitor all platform transactions and revenue</p>
         </div>
-      </div>
+        <div className="flex items-center gap-3">
+          {onNavigateToReports && (
+            <button
+              onClick={onNavigateToReports}
+              className="h-9 px-4 rounded-lg bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 flex items-center gap-2 transition-colors"
+            >
+              <Icons.pieChart className="w-4 h-4" />
+              Reports
+            </button>
+          )}
+          <button className="h-9 px-4 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-sm text-gray-600 flex items-center gap-2 transition-colors">
+            <Icons.refresh className="w-4 h-4" />
+            Refresh
+          </button>
+          <div className="w-px h-8 bg-gray-200" />
+          <AdminDropdown />
+        </div>
+      </header>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-8 space-y-6">
+      <div className="flex-1 overflow-y-auto p-6 space-y-5">
         <StatsCards />
         <TransactionFilters filters={filters} setFilters={setFilters} />
         <TransactionsTable
@@ -912,7 +1003,7 @@ const TransactionDetail = ({ transaction, onBack }: any) => {
   };
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-slate-50">
+    <div className="flex-1 flex flex-col overflow-hidden bg-gray-50 ml-60">
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-8 py-6 shrink-0">
         <div className="flex items-center justify-between">
@@ -1348,9 +1439,13 @@ const RevenueReports = ({ onBack }: any) => {
   };
 
   // Get comparison value for a data point
-  const getComparisonValue = (currentValue: number, index: number) => {
+  const getComparisonValue = (currentValue: number, index: number): number | null => {
     if (!compareMode || !currentData.prevData || !currentData.prevData[index]) return null;
-    return currentData.prevData[index][chartMetric];
+    const prevItem = currentData.prevData[index];
+    const value = chartMetric === 'revenue' ? prevItem.revenue :
+                  chartMetric === 'commissions' ? (prevItem.commissions || 0) :
+                  prevItem.transactions;
+    return value;
   };
 
   // Handle bar click for drill-down
@@ -1365,7 +1460,7 @@ const RevenueReports = ({ onBack }: any) => {
   };
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-slate-50">
+    <div className="flex-1 flex flex-col overflow-hidden bg-gray-50 ml-60">
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-8 py-5 shrink-0">
         <div className="flex items-center justify-between">
@@ -1474,7 +1569,7 @@ const RevenueReports = ({ onBack }: any) => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-8 space-y-6">
+      <div className="flex-1 overflow-y-auto p-6 space-y-5">
         {/* Summary Cards - Interactive */}
         <div className="grid grid-cols-4 gap-4">
           {[
@@ -1556,25 +1651,20 @@ const RevenueReports = ({ onBack }: any) => {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-lg font-semibold text-slate-900">Performance Over Time</h2>
-                {selectedMonth !== null && (
-                  <p className="text-sm text-blue-600 mt-1">
-                    Showing details for: {currentData.data[selectedMonth].label}
-                  </p>
-                )}
+                <p className="text-sm text-slate-500 mt-0.5">Track revenue and transaction trends</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl">
                 {[
-                  { id: 'revenue', label: 'Revenue' },
-                  { id: 'transactions', label: 'Transactions' },
-                  { id: 'volume', label: 'Volume' },
+                  { id: 'revenue', label: 'Revenue', icon: 'dollarSign' },
+                  { id: 'transactions', label: 'Transactions', icon: 'receipt' },
                 ].map((metric) => (
                   <button
                     key={metric.id}
                     onClick={() => setChartMetric(metric.id)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                       chartMetric === metric.id
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        ? 'bg-white text-slate-900 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700'
                     }`}
                   >
                     {metric.label}
@@ -1584,143 +1674,78 @@ const RevenueReports = ({ onBack }: any) => {
             </div>
 
             {/* Interactive Bar Chart */}
-            <div className="h-72 flex items-end justify-between gap-3 px-4 pt-8 relative">
-              {/* Y-axis labels */}
-              <div className="absolute left-0 top-8 bottom-12 w-16 flex flex-col justify-between text-xs text-slate-400">
-                <span>{formatCurrency(getMaxValue())}</span>
-                <span>{formatCurrency(Math.round(getMaxValue() / 2))}</span>
-                <span>0</span>
+            <div className="relative">
+              {/* Grid lines */}
+              <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
+                <div className="border-b border-slate-100" />
+                <div className="border-b border-slate-100" />
+                <div className="border-b border-slate-100" />
+                <div className="border-b border-slate-100" />
               </div>
 
-              {currentData.data.map((item: any, index: number) => {
-                const maxValue = getMaxValue();
-                const height = (item[chartMetric] / maxValue) * 100;
-                const comparisonValue = getComparisonValue(item[chartMetric], index);
-                const comparisonHeight = comparisonValue ? (comparisonValue / maxValue) * 100 : 0;
-                const isSelected = selectedMonth === index;
-                const isHovered = hoveredBar === index;
+              <div className="h-64 flex items-end justify-between gap-4 relative z-10">
+                {currentData.data.map((item: any, index: number) => {
+                  const maxValue = getMaxValue();
+                  const value = chartMetric === 'revenue' ? item.revenue : item.transactions;
+                  const height = maxValue > 0 ? (value / maxValue) * 100 : 0;
+                  const isHovered = hoveredBar === index;
 
-                return (
-                  <div
-                    key={item.label}
-                    className="flex-1 flex flex-col items-center gap-2 cursor-pointer relative"
-                    onMouseEnter={() => setHoveredBar(index)}
-                    onMouseLeave={() => setHoveredBar(null)}
-                    onClick={() => handleBarClick(item, index)}
-                  >
-                    {/* Tooltip */}
-                    {isHovered && (
-                      <div className="absolute bottom-full mb-2 bg-slate-900 text-white px-3 py-2 rounded-lg text-xs whitespace-nowrap z-10 shadow-lg">
-                        <p className="font-semibold">{item.label}</p>
-                        <p>Revenue: SAR {formatCurrency(item.revenue)}</p>
-                        <p>Transactions: {formatCurrency(item.transactions)}</p>
-                        <p>Volume: SAR {formatCurrency(item.volume)}</p>
-                        {comparisonValue && (
-                          <p className="text-slate-400 mt-1 pt-1 border-t border-slate-700">
-                            Prev: {chartMetric === 'transactions' ? formatCurrency(comparisonValue) : `SAR ${formatCurrency(comparisonValue)}`}
-                          </p>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Bars Container */}
-                    <div className="relative w-full flex items-end justify-center gap-1" style={{ height: '200px' }}>
-                      {/* Comparison Bar (if enabled) */}
-                      {compareMode && comparisonValue && (
-                        <div
-                          className="w-5 rounded-t-md bg-slate-300 transition-all"
-                          style={{ height: `${comparisonHeight * 2}px` }}
-                        />
+                  return (
+                    <div
+                      key={item.label}
+                      className="flex-1 flex flex-col items-center cursor-pointer group"
+                      onMouseEnter={() => setHoveredBar(index)}
+                      onMouseLeave={() => setHoveredBar(null)}
+                    >
+                      {/* Tooltip */}
+                      {isHovered && (
+                        <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-3 rounded-xl text-xs whitespace-nowrap z-20 shadow-xl">
+                          <p className="font-semibold text-sm mb-2">{item.label}</p>
+                          <div className="space-y-1">
+                            <p className="flex justify-between gap-4">
+                              <span className="text-slate-400">Revenue:</span>
+                              <span className="font-medium">SAR {formatCurrency(item.revenue)}</span>
+                            </p>
+                            <p className="flex justify-between gap-4">
+                              <span className="text-slate-400">Transactions:</span>
+                              <span className="font-medium">{item.transactions}</span>
+                            </p>
+                          </div>
+                          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-transparent border-t-slate-900" />
+                        </div>
                       )}
 
-                      {/* Main Bar */}
-                      <div
-                        className={`rounded-t-lg transition-all duration-300 ${
-                          isSelected
-                            ? 'bg-blue-600 w-10 shadow-lg shadow-blue-600/30'
-                            : isHovered
-                            ? 'bg-blue-500 w-8'
-                            : 'bg-blue-400 w-6 hover:bg-blue-500'
-                        }`}
-                        style={{ height: `${height * 2}px` }}
-                      />
+                      {/* Bar */}
+                      <div className="w-full flex justify-center" style={{ height: '180px' }}>
+                        <div className="relative flex items-end h-full">
+                          <div
+                            className={`w-10 rounded-t-xl transition-all duration-300 ${
+                              isHovered
+                                ? 'bg-gradient-to-t from-blue-600 to-blue-500 shadow-lg shadow-blue-500/30'
+                                : 'bg-gradient-to-t from-blue-500 to-blue-400'
+                            }`}
+                            style={{ height: `${Math.max(height * 1.8, 4)}px` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Label */}
+                      <p className={`text-xs mt-3 transition-colors ${isHovered ? 'text-blue-600 font-semibold' : 'text-slate-500'}`}>
+                        {item.label}
+                      </p>
+
+                      {/* Value */}
+                      <p className={`text-sm font-semibold mt-1 ${isHovered ? 'text-blue-600' : 'text-slate-700'}`}>
+                        {chartMetric === 'transactions'
+                          ? item.transactions
+                          : `${(item.revenue / 1000).toFixed(0)}K`
+                        }
+                      </p>
                     </div>
-
-                    {/* Label */}
-                    <p className={`text-xs transition-colors ${isSelected || isHovered ? 'text-blue-600 font-semibold' : 'text-slate-500'}`}>
-                      {item.label}
-                    </p>
-
-                    {/* Value */}
-                    <p className={`text-xs font-medium transition-colors ${isSelected ? 'text-blue-600' : 'text-slate-600'}`}>
-                      {chartMetric === 'transactions'
-                        ? formatCurrency(item[chartMetric])
-                        : `${formatCurrency(Math.round(item[chartMetric] / 1000))}K`
-                      }
-                    </p>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-
-            {/* Legend */}
-            {compareMode && (
-              <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-slate-100">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-blue-500" />
-                  <span className="text-xs text-slate-600">Current Period</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-slate-300" />
-                  <span className="text-xs text-slate-600">Previous Period</span>
-                </div>
-              </div>
-            )}
-
-            {/* Drill-down Panel */}
-            {selectedMonth !== null && (
-              <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-slate-900">
-                    {currentData.data[selectedMonth].label} Details
-                  </h3>
-                  <button
-                    onClick={() => setSelectedMonth(null)}
-                    className="p-1 hover:bg-blue-100 rounded-lg transition-colors"
-                  >
-                    <Icons.x className="w-4 h-4 text-slate-500" />
-                  </button>
-                </div>
-                <div className="grid grid-cols-4 gap-4">
-                  <div className="text-center p-3 bg-white rounded-lg">
-                    <p className="text-lg font-bold text-blue-600">SAR {formatCurrency(currentData.data[selectedMonth].revenue)}</p>
-                    <p className="text-xs text-slate-500">Revenue</p>
-                  </div>
-                  <div className="text-center p-3 bg-white rounded-lg">
-                    <p className="text-lg font-bold text-emerald-600">{currentData.data[selectedMonth].transactions}</p>
-                    <p className="text-xs text-slate-500">Transactions</p>
-                  </div>
-                  <div className="text-center p-3 bg-white rounded-lg">
-                    <p className="text-lg font-bold text-purple-600">SAR {formatCurrency(currentData.data[selectedMonth].volume)}</p>
-                    <p className="text-xs text-slate-500">Volume</p>
-                  </div>
-                  <div className="text-center p-3 bg-white rounded-lg">
-                    <p className="text-lg font-bold text-amber-600">SAR {formatCurrency(Math.round(currentData.data[selectedMonth].revenue / currentData.data[selectedMonth].transactions))}</p>
-                    <p className="text-xs text-slate-500">Avg Commission</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 mt-4">
-                  <button className="flex-1 h-9 rounded-lg bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
-                    <Icons.externalLink className="w-3.5 h-3.5" />
-                    View Transactions
-                  </button>
-                  <button className="flex-1 h-9 rounded-lg border border-slate-200 bg-white text-slate-600 text-xs font-medium hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
-                    <Icons.download className="w-3.5 h-3.5" />
-                    Export Period
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Revenue Breakdown - Interactive Donut */}
@@ -1732,7 +1757,6 @@ const RevenueReports = ({ onBack }: any) => {
               {[
                 { id: 'source', label: 'Source' },
                 { id: 'category', label: 'Category' },
-                { id: 'user_type', label: 'User Type' },
               ].map((type) => (
                 <button
                   key={type.id}

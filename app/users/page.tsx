@@ -5,14 +5,15 @@
 
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
+import AdminDropdown from '@/components/layout/AdminDropdown';
 import { Icons } from '@/components/common/Icons';
 import UserStatusBadge from '@/components/users/UserStatusBadge';
-import UserRoleBadge from '@/components/users/UserRoleBadge';
 import { UserListSkeleton } from '@/components/common/LoadingSkeleton';
 import { MOCK_USERS } from '@/lib/constants';
+import { statCardColors, formatFollowers, getTotalFollowers, avatarGradients, colorVariants } from '@/lib/designSystem';
 import {
   MOCK_INFLUENCER_ACTIVITY_LOG,
   MOCK_BUSINESS_ACTIVITY_LOG,
@@ -62,23 +63,23 @@ function UsersPageContent() {
     }
   }, [filters, pathname, router]);
 
-  // Count by type
-  const typeCounts = {
+  // Count by type (memoized - static data)
+  const typeCounts = useMemo(() => ({
     all: MOCK_USERS.length,
     influencer: MOCK_USERS.filter(u => u.type === 'influencer').length,
     business: MOCK_USERS.filter(u => u.type === 'business').length,
-  };
+  }), []);
 
-  // Count by status
-  const statusCounts = {
+  // Count by status (memoized - static data)
+  const statusCounts = useMemo(() => ({
     all: MOCK_USERS.length,
     verified: MOCK_USERS.filter(u => u.status === 'verified').length,
     pending: MOCK_USERS.filter(u => u.status === 'pending').length,
     suspended: MOCK_USERS.filter(u => u.status === 'suspended').length,
-  };
+  }), []);
 
-  // Filter users
-  const filteredUsers = MOCK_USERS.filter(u => {
+  // Filter users (memoized - depends on filters)
+  const filteredUsers = useMemo(() => MOCK_USERS.filter(u => {
     if (filters.type !== 'all' && u.type !== filters.type) return false;
     if (filters.status !== 'all' && u.status !== filters.status) return false;
     if (filters.search) {
@@ -91,25 +92,14 @@ function UsersPageContent() {
       );
     }
     return true;
-  });
+  }), [filters]);
 
-  // Sort: most recent first
-  const sortedUsers = [...filteredUsers].sort((a, b) =>
+  // Sort: most recent first (memoized - depends on filteredUsers)
+  const sortedUsers = useMemo(() => [...filteredUsers].sort((a, b) =>
     new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()
-  );
+  ), [filteredUsers]);
 
-  // Format follower count
-  const formatFollowers = (count: number) => {
-    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
-    if (count >= 1000) return `${(count / 1000).toFixed(0)}K`;
-    return count.toString();
-  };
-
-  // Total followers
-  const getTotalFollowers = (followers: any): number => {
-    if (!followers) return 0;
-    return Object.values(followers).reduce((a: number, b: any) => a + (b as number), 0);
-  };
+  // Note: formatFollowers and getTotalFollowers are now imported from designSystem
 
   if (selectedUser) {
     return (
@@ -124,14 +114,14 @@ function UsersPageContent() {
     <div className="flex h-screen bg-gray-100 font-sans antialiased">
       <Sidebar active={activePage} setActive={setActivePage} />
 
-      <div className="flex-1 bg-gray-50 overflow-y-auto">
+      <div className="flex-1 bg-gray-50 overflow-y-auto ml-60">
         {/* Header */}
-        <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-5 sticky top-0 z-10">
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-10">
           <div>
-            <h1 className="text-base font-semibold text-gray-900">User Management</h1>
-            <p className="text-xs text-gray-500">Manage platform users and accounts</p>
+            <h1 className="text-lg font-semibold text-gray-900">User Management</h1>
+            <p className="text-sm text-gray-500">Manage platform users and accounts</p>
           </div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3">
             <button className="h-9 px-4 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 flex items-center gap-2 text-sm text-gray-600 transition-colors">
               <Icons.download className="w-4 h-4" />
               Export
@@ -140,6 +130,8 @@ function UsersPageContent() {
               <Icons.refresh className="w-4 h-4" />
               Refresh
             </button>
+            <div className="w-px h-8 bg-gray-200" />
+            <AdminDropdown />
           </div>
         </header>
 
@@ -148,17 +140,18 @@ function UsersPageContent() {
           {/* Stats Cards */}
           <div className="grid grid-cols-4 gap-4">
             {[
-              { label: 'Total Users', value: MOCK_USERS.length, icon: 'users', color: 'blue', change: '+12 this week' },
-              { label: 'Influencers', value: typeCounts.influencer, icon: 'user', color: 'violet', change: `${statusCounts.verified} verified` },
-              { label: 'Businesses', value: typeCounts.business, icon: 'building', color: 'emerald', change: `${MOCK_USERS.filter(u => u.type === 'business' && u.status === 'verified').length} verified` },
-              { label: 'Pending Review', value: statusCounts.pending, icon: 'clock', color: 'amber', change: 'SLA: 1-2 days' },
-            ].map((stat, i) => {
-              const Icon = Icons[stat.icon as keyof typeof Icons];
+              { label: 'Total Users', value: MOCK_USERS.length, icon: 'users' as const, color: 'blue' as const, change: '+12 this week' },
+              { label: 'Influencers', value: typeCounts.influencer, icon: 'user' as const, color: 'violet' as const, change: `${statusCounts.verified} verified` },
+              { label: 'Businesses', value: typeCounts.business, icon: 'building' as const, color: 'emerald' as const, change: `${MOCK_USERS.filter(u => u.type === 'business' && u.status === 'verified').length} verified` },
+              { label: 'Pending Review', value: statusCounts.pending, icon: 'clock' as const, color: 'amber' as const, change: 'SLA: 1-2 days' },
+            ].map((stat) => {
+              const Icon = Icons[stat.icon];
+              const colors = statCardColors[stat.color];
               return (
-                <div key={i} className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-shadow">
+                <div key={stat.label} className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between">
-                    <div className={`w-11 h-11 rounded-xl bg-${stat.color}-50 flex items-center justify-center`}>
-                      {Icon && <Icon className={`w-5 h-5 text-${stat.color}-600`} />}
+                    <div className={`w-11 h-11 rounded-xl ${colors.iconBg} flex items-center justify-center`}>
+                      {Icon && <Icon className={`w-5 h-5 ${colors.iconText}`} />}
                     </div>
                     <span className="text-[11px] text-gray-400 font-medium">{stat.change}</span>
                   </div>
@@ -175,26 +168,25 @@ function UsersPageContent() {
               {/* Type Tabs */}
               <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-xl">
                 {[
-                  { id: 'influencer', label: 'Influencers', icon: 'user', color: 'violet' },
-                  { id: 'business', label: 'Businesses', icon: 'building', color: 'blue' },
+                  { id: 'influencer' as const, label: 'Influencers', icon: 'user' as const, activeBadge: 'bg-violet-100 text-violet-600' },
+                  { id: 'business' as const, label: 'Businesses', icon: 'building' as const, activeBadge: 'bg-blue-100 text-blue-600' },
                 ].map((tab) => {
-                  const Icon = Icons[tab.icon as keyof typeof Icons];
+                  const Icon = Icons[tab.icon];
+                  const isActive = filters.type === tab.id;
                   return (
                     <button
                       key={tab.id}
-                      onClick={() => setFilters({ ...filters, type: tab.id as typeof filters.type })}
+                      onClick={() => setFilters({ ...filters, type: tab.id })}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all
-                        ${filters.type === tab.id
+                        ${isActive
                           ? 'bg-white text-gray-900 shadow-sm'
                           : 'text-gray-500 hover:text-gray-700'}`}
                     >
                       {Icon && <Icon className="w-4 h-4" />}
                       {tab.label}
                       <span className={`min-w-[22px] h-[22px] px-1.5 rounded-md text-xs font-semibold flex items-center justify-center
-                        ${filters.type === tab.id
-                          ? `bg-${tab.color || 'gray'}-100 text-${tab.color || 'gray'}-600`
-                          : 'bg-gray-200 text-gray-500'}`}>
-                        {typeCounts[tab.id as keyof typeof typeCounts]}
+                        ${isActive ? tab.activeBadge : 'bg-gray-200 text-gray-500'}`}>
+                        {typeCounts[tab.id]}
                       </span>
                     </button>
                   );
@@ -232,8 +224,8 @@ function UsersPageContent() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-100">
+                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4 w-12">#</th>
                   <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4">User</th>
-                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4">Type</th>
                   <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4">Category</th>
                   <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4">
                     {filters.type === 'business' ? 'Total Spent' : 'Followers'}
@@ -254,7 +246,7 @@ function UsersPageContent() {
                     </td>
                   </tr>
                 ) : (
-                  sortedUsers.map((user) => {
+                  sortedUsers.map((user, index) => {
                     const isInfluencer = user.type === 'influencer';
                     return (
                       <tr
@@ -262,6 +254,10 @@ function UsersPageContent() {
                         onClick={() => setSelectedUser(user)}
                         className="hover:bg-gray-50 transition-colors cursor-pointer group"
                       >
+                        {/* Row Number */}
+                        <td className="px-5 py-4">
+                          <span className="text-sm text-gray-400 font-medium">{index + 1}</span>
+                        </td>
                         {/* User Info */}
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3">
@@ -279,11 +275,6 @@ function UsersPageContent() {
                               </p>
                             </div>
                           </div>
-                        </td>
-
-                        {/* Type */}
-                        <td className="px-5 py-4">
-                          <UserRoleBadge type={user.type} />
                         </td>
 
                         {/* Category */}
@@ -650,11 +641,7 @@ function OverviewTab({ user, isInfluencer }: { user: User; isInfluencer: boolean
 
 // Social Accounts Tab Component
 function SocialAccountsTab({ user }: { user: InfluencerUser }) {
-  const formatFollowers = (count: number) => {
-    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
-    if (count >= 1000) return `${(count / 1000).toFixed(0)}K`;
-    return count.toString();
-  };
+  // Note: formatFollowers is imported from designSystem
 
   const socialPlatforms = [
     { key: 'instagram' as const, label: 'Instagram', icon: 'instagram' as const, color: 'bg-gradient-to-br from-purple-500 to-pink-500' },
@@ -1229,16 +1216,7 @@ function UserDetailView({ user, onBack }: { user: User; onBack: () => void }) {
         { id: 'activity', label: 'Activity Log' },
       ];
 
-  const formatFollowers = (count: number) => {
-    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
-    if (count >= 1000) return `${(count / 1000).toFixed(0)}K`;
-    return count.toString();
-  };
-
-  const getTotalFollowers = (followers: any): number => {
-    if (!followers) return 0;
-    return Object.values(followers).reduce((a: number, b: any) => a + (b as number), 0);
-  };
+  // Note: formatFollowers and getTotalFollowers are imported from designSystem
 
   const socialPlatforms = [
     { key: 'instagram', label: 'Instagram', icon: 'instagram', color: 'bg-gradient-to-br from-purple-500 to-pink-500' },
@@ -1249,7 +1227,7 @@ function UserDetailView({ user, onBack }: { user: User; onBack: () => void }) {
   ];
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+    <div className="flex-1 flex flex-col overflow-hidden bg-gray-50 ml-60">
       {/* Header */}
       <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-5 sticky top-0 z-10">
         <div className="flex items-center gap-4">

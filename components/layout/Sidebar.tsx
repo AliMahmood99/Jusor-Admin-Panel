@@ -41,7 +41,7 @@ export default function Sidebar({ active, setActive }: SidebarProps) {
   };
 
   return (
-    <div className="w-60 bg-slate-900 flex flex-col h-screen shrink-0">
+    <aside className="w-60 bg-slate-900 flex flex-col h-screen shrink-0 fixed left-0 top-0 z-40">
       {/* Logo Header */}
       <div className="h-14 flex items-center px-4 border-b border-slate-800">
         <div className="flex items-center gap-2.5">
@@ -87,19 +87,6 @@ export default function Sidebar({ active, setActive }: SidebarProps) {
         ))}
       </nav>
 
-      {/* User Profile */}
-      <div className="p-2.5 border-t border-slate-800">
-        <div className="flex items-center gap-2.5 p-2 rounded-lg bg-slate-800/50">
-          <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center">
-            <span className="text-white font-semibold text-xs">AA</span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white truncate">Ahmed Al-Qahtani</p>
-            <p className="text-[10px] text-slate-500">Super Admin</p>
-          </div>
-          <Icons.more className="w-4 h-4 text-slate-500" />
-        </div>
-      </div>
-    </div>
+    </aside>
   );
 }

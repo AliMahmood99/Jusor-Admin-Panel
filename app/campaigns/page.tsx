@@ -5,85 +5,57 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
+import AdminDropdown from '@/components/layout/AdminDropdown';
+import { Icons } from '@/components/common/Icons';
+import type { Campaign, CampaignInfluencer, CampaignType, CampaignMainStatus, InfluencerCampaignStatus } from '@/types';
 
 // ============================================
-// ICONS
+// TYPE DEFINITIONS
 // ============================================
-const Icons = {
-  // Navigation & UI
-  arrowLeft: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m15 18-6-6 6-6"/></svg>,
-  search: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
-  refresh: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>,
-  x: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>,
-  chevronRight: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m9 18 6-6-6-6"/></svg>,
+type IssueSeverity = 'high' | 'medium' | 'low';
 
-  // Status & Alerts
-  check: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M20 6 9 17l-5-5"/></svg>,
-  checkCircle: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m22 4-10 10-3-3"/></svg>,
-  alertCircle: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>,
-  alertTriangle: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>,
-  info: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>,
+interface CampaignIssue {
+  type: string;
+  severity: IssueSeverity;
+  influencer: CampaignInfluencer;
+  message: string;
+}
 
-  // Time & Calendar
-  clock: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>,
-  clockPlus: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6"/><path d="M16 14h-4"/><path d="M19 2v4"/><path d="M17 4h4"/></svg>,
-  timer: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/></svg>,
-  calendar: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>,
-
-  // People & Business
-  users: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
-  building: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>,
-
-  // Finance
-  dollarSign: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
-  wallet: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>,
-  trendingUp: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></svg>,
-
-  // Content & Files
-  edit: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>,
-  penLine: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>,
-  fileText: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>,
-  fileCheck: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg>,
-  image: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>,
-  video: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/></svg>,
-
-  // Campaign & Activity
-  megaphone: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m3 11 18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>,
-  activity: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
-
-  // Security & Access
-  lock: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
-  unlock: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>,
-  globe: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>,
-  scale: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>,
-  externalLink: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="m10 14 11-11"/></svg>,
-
-  // Social Platforms
-  instagram: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect width="20" height="20" x="2" y="2" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><path d="M17.5 6.5h.01"/></svg>,
-  youtube: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>,
-  tiktok: (p: any) => <svg {...p} viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>,
-};
+interface FiltersState {
+  status: CampaignMainStatus | 'all';
+  type: CampaignType | 'all';
+  search: string;
+}
 
 // ============================================
 // HELPER FUNCTIONS
 // ============================================
-const formatCurrency = (amount: number) => `SAR ${amount.toLocaleString()}`;
+const formatCurrency = (amount: number): string => `SAR ${amount.toLocaleString()}`;
 
-const getTypeConfig = (type: string) => ({
+// Type config with static classes
+const typeConfigs: Record<CampaignType, { label: string; bg: string; text: string; icon: keyof typeof Icons }> = {
   public: { label: 'Public', bg: 'bg-blue-50', text: 'text-blue-600', icon: 'globe' },
   invite: { label: 'Invite Only', bg: 'bg-violet-50', text: 'text-violet-600', icon: 'lock' },
   hybrid: { label: 'Hybrid', bg: 'bg-amber-50', text: 'text-amber-600', icon: 'unlock' },
-} as any)[type];
+};
 
-const getStatusConfig = (status: string) => ({
+const getTypeConfig = (type: CampaignType) => typeConfigs[type];
+
+// Status config with static classes
+const statusConfigs: Record<CampaignMainStatus, { label: string; bg: string; text: string }> = {
+  draft: { label: 'Draft', bg: 'bg-slate-300', text: 'text-white' },
   active: { label: 'Active', bg: 'bg-emerald-500', text: 'text-white' },
+  paused: { label: 'Paused', bg: 'bg-amber-500', text: 'text-white' },
   completed: { label: 'Completed', bg: 'bg-slate-500', text: 'text-white' },
   cancelled: { label: 'Cancelled', bg: 'bg-slate-400', text: 'text-white' },
-} as any)[status];
+};
 
-const getInfluencerStatusConfig = (status: string) => ({
+const getStatusConfig = (status: CampaignMainStatus) => statusConfigs[status];
+
+// Influencer status config with static classes
+const influencerStatusConfigs: Record<InfluencerCampaignStatus, { label: string; bg: string; text: string; step: number }> = {
   applied: { label: 'Applied', bg: 'bg-slate-100', text: 'text-slate-600', step: 1 },
   invited: { label: 'Invited', bg: 'bg-slate-100', text: 'text-slate-600', step: 1 },
   accepted: { label: 'Accepted', bg: 'bg-blue-100', text: 'text-blue-700', step: 2 },
@@ -97,13 +69,21 @@ const getInfluencerStatusConfig = (status: string) => ({
   content_approved: { label: 'Content Approved', bg: 'bg-emerald-100', text: 'text-emerald-700', step: 7 },
   completed: { label: 'Completed', bg: 'bg-emerald-100', text: 'text-emerald-700', step: 8 },
   disputed: { label: 'Disputed', bg: 'bg-rose-100', text: 'text-rose-600', step: -2 },
-} as any)[status] || { label: status, bg: 'bg-slate-100', text: 'text-slate-600', step: 0 };
+};
 
-const getPlatformIcon = (platform: string) => (Icons as any)[platform] || Icons.globe;
+const getInfluencerStatusConfig = (status: InfluencerCampaignStatus) =>
+  influencerStatusConfigs[status] || { label: status, bg: 'bg-slate-100', text: 'text-slate-600', step: 0 };
 
-const getIssues = (campaign: any) => {
-  const issues: any[] = [];
-  campaign.influencers?.forEach((inf: any) => {
+const getPlatformIcon = (platform: string): React.ComponentType<{ className?: string }> => {
+  const iconKey = platform as keyof typeof Icons;
+  return Icons[iconKey] || Icons.globe;
+};
+
+const severityOrder: Record<IssueSeverity, number> = { high: 0, medium: 1, low: 2 };
+
+const getIssues = (campaign: Campaign): CampaignIssue[] => {
+  const issues: CampaignIssue[] = [];
+  campaign.influencers?.forEach((inf) => {
     if (inf.status === 'disputed') {
       issues.push({ type: 'dispute', severity: 'high', influencer: inf, message: `Dispute: ${inf.name}` });
     }
@@ -117,23 +97,20 @@ const getIssues = (campaign: any) => {
       issues.push({ type: 'signature_pending', severity: 'medium', influencer: inf, message: `Signature ${inf.hoursRemaining}h: ${inf.name}` });
     }
   });
-  return issues.sort((a, b) => {
-    const severityOrder: any = { high: 0, medium: 1, low: 2 };
-    return severityOrder[a.severity] - severityOrder[b.severity];
-  });
+  return issues.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
 };
 
 // ============================================
 // MOCK DATA
 // ============================================
-const mockCampaigns = [
+const mockCampaigns: Campaign[] = [
   {
     id: 'CMP-2891',
     name: 'Winter Collection Launch',
     business: { id: 'BUS-7890', name: 'Luxury Brands SA', avatar: 'LB', verified: true },
-    type: 'public',
-    category: 'Fashion & Lifestyle',
-    status: 'active',
+    type: 'public' as const,
+    category: 'Fashion & Lifestyle' as const,
+    status: 'active' as const,
     budget: 85000,
     escrowTotal: 70000,
     releasedTotal: 15000,
@@ -142,6 +119,8 @@ const mockCampaigns = [
     endDate: '2026-01-31',
     contentDeadline: '2026-01-20',
     description: 'Promote our exclusive Winter 2026 collection.',
+    objectives: ['Increase brand awareness', 'Drive online sales', 'Showcase new collection'],
+    deliverables: [{ platform: 'instagram' as const, type: 'Reel' as const, count: 2 }, { platform: 'instagram' as const, type: 'Story' as const, count: 3 }],
     influencerSlots: 6,
     influencers: [
       { id: 'INF-001', name: 'Noura Al-Rashid', handle: '@noura_style', avatar: 'NR', followers: 125000, platform: 'instagram', status: 'completed', source: 'invited', payment: 15000, escrowStatus: 'released', contentApprovedAt: '2026-01-04' },
@@ -167,6 +146,8 @@ const mockCampaigns = [
     endDate: '2026-01-15',
     contentDeadline: '2026-01-10',
     description: 'Review our new tech products.',
+    objectives: ['Generate product reviews', 'Build tech credibility'],
+    deliverables: [{ platform: 'youtube' as const, type: 'Video' as const, count: 1 }],
     influencerSlots: 3,
     influencers: [
       { id: 'INF-101', name: 'Khalid Al-Mutairi', handle: '@khalid_tech', avatar: 'KM', followers: 95000, platform: 'youtube', status: 'completed', source: 'invited', payment: 15000, escrowStatus: 'released', contentApprovedAt: '2025-12-20' },
@@ -189,6 +170,8 @@ const mockCampaigns = [
     endDate: '2025-04-01',
     contentDeadline: '2025-03-25',
     description: 'Promote Ramadan special menu.',
+    objectives: ['Increase foot traffic', 'Promote Ramadan offers'],
+    deliverables: [{ platform: 'instagram' as const, type: 'Story' as const, count: 3 }, { platform: 'tiktok' as const, type: 'Video' as const, count: 1 }],
     influencerSlots: 4,
     influencers: [
       { id: 'INF-201', name: 'Saleh Al-Qahtani', handle: '@saleh_food', avatar: 'SQ', followers: 72000, platform: 'instagram', status: 'completed', source: 'applied', payment: 8000, escrowStatus: 'released', contentApprovedAt: '2025-03-20' },
@@ -210,7 +193,10 @@ const mockCampaigns = [
     createdAt: '2025-11-01',
     startDate: '2025-11-15',
     endDate: '2025-12-15',
+    contentDeadline: '2025-12-10',
     description: 'Preview summer collection.',
+    objectives: ['Launch summer line preview'],
+    deliverables: [{ platform: 'instagram' as const, type: 'Post' as const, count: 2 }],
     influencerSlots: 6,
     influencers: [],
   },
@@ -234,7 +220,18 @@ const mockAdminNotes = [
 // ============================================
 // STATUS FLOW COMPONENT
 // ============================================
-const StatusFlow = ({ influencer }: { influencer: any }) => {
+type StepStatus = 'completed' | 'current' | 'pending';
+
+const statusStepMap: Record<string, InfluencerCampaignStatus[]> = {
+  applied: ['applied', 'invited', 'accepted', 'rejected', 'awaiting_signature', 'signature_expired', 'signed', 'creating_content', 'content_revision', 'content_submitted', 'content_approved', 'completed', 'disputed'],
+  accepted: ['accepted', 'awaiting_signature', 'signature_expired', 'signed', 'creating_content', 'content_revision', 'content_submitted', 'content_approved', 'completed', 'disputed'],
+  signed: ['signed', 'creating_content', 'content_revision', 'content_submitted', 'content_approved', 'completed', 'disputed'],
+  creating: ['creating_content', 'content_revision', 'content_submitted', 'content_approved', 'completed'],
+  submitted: ['content_submitted', 'content_approved', 'completed'],
+  done: ['completed'],
+};
+
+const StatusFlow = ({ influencer }: { influencer: CampaignInfluencer }) => {
   const steps = [
     { key: 'applied', label: 'Applied' },
     { key: 'accepted', label: 'Accepted' },
@@ -244,17 +241,10 @@ const StatusFlow = ({ influencer }: { influencer: any }) => {
     { key: 'done', label: 'Done' },
   ];
 
-  const getStepStatus = (stepKey: string) => {
-    const statusMap: any = {
-      applied: ['applied', 'invited', 'accepted', 'rejected', 'awaiting_signature', 'signature_expired', 'signed', 'creating_content', 'content_revision', 'content_submitted', 'content_approved', 'completed', 'disputed'],
-      accepted: ['accepted', 'awaiting_signature', 'signature_expired', 'signed', 'creating_content', 'content_revision', 'content_submitted', 'content_approved', 'completed', 'disputed'],
-      signed: ['signed', 'creating_content', 'content_revision', 'content_submitted', 'content_approved', 'completed', 'disputed'],
-      creating: ['creating_content', 'content_revision', 'content_submitted', 'content_approved', 'completed'],
-      submitted: ['content_submitted', 'content_approved', 'completed'],
-      done: ['completed'],
-    };
+  const getStepStatus = (stepKey: string): StepStatus => {
+    const validStatuses = statusStepMap[stepKey];
 
-    if (statusMap[stepKey]?.includes(influencer.status)) {
+    if (validStatuses?.includes(influencer.status)) {
       if (stepKey === 'creating' && ['creating_content', 'content_revision'].includes(influencer.status)) return 'current';
       if (stepKey === 'submitted' && influencer.status === 'content_submitted') return 'current';
       if (stepKey === 'done' && influencer.status === 'completed') return 'completed';
@@ -291,7 +281,13 @@ const StatusFlow = ({ influencer }: { influencer: any }) => {
 // ============================================
 // INFLUENCER CARD COMPONENT
 // ============================================
-const InfluencerCard = ({ influencer, onExtend, onMarkDelivered }: any) => {
+interface InfluencerCardProps {
+  influencer: CampaignInfluencer;
+  onExtend?: (influencer: CampaignInfluencer) => void;
+  onMarkDelivered?: (influencer: CampaignInfluencer) => void;
+}
+
+const InfluencerCard = ({ influencer, onExtend, onMarkDelivered }: InfluencerCardProps) => {
   const PlatformIcon = getPlatformIcon(influencer.platform);
 
   return (
@@ -376,7 +372,7 @@ const InfluencerCard = ({ influencer, onExtend, onMarkDelivered }: any) => {
                 <Icons.edit className="w-3.5 h-3.5" />
                 Revision {influencer.revisionRound}/2
               </span>
-              <span>Due: {new Date(influencer.revisionDeadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+              <span>Due: {influencer.revisionDeadline ? new Date(influencer.revisionDeadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'N/A'}</span>
             </>
           )}
           {influencer.status === 'content_submitted' && (
@@ -401,19 +397,19 @@ const InfluencerCard = ({ influencer, onExtend, onMarkDelivered }: any) => {
 
         <div className="flex items-center gap-2">
           {influencer.status === 'awaiting_signature' && (
-            <button onClick={() => onExtend(influencer)} className="h-8 px-3 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-1.5">
+            <button onClick={() => onExtend?.(influencer)} className="h-8 px-3 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-1.5">
               <Icons.clockPlus className="w-3.5 h-3.5" />
               Extend +24h
             </button>
           )}
           {['creating_content', 'content_revision'].includes(influencer.status) && (
-            <button onClick={() => onExtend(influencer)} className="h-8 px-3 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-1.5">
+            <button onClick={() => onExtend?.(influencer)} className="h-8 px-3 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-1.5">
               <Icons.clockPlus className="w-3.5 h-3.5" />
               Extend Deadline
             </button>
           )}
           {influencer.status === 'content_submitted' && (
-            <button onClick={() => onMarkDelivered(influencer)} className="h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-xs font-medium text-white flex items-center gap-1.5 shadow-lg shadow-emerald-600/25">
+            <button onClick={() => onMarkDelivered?.(influencer)} className="h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-xs font-medium text-white flex items-center gap-1.5 shadow-lg shadow-emerald-600/25">
               <Icons.checkCircle className="w-3.5 h-3.5" />
               Mark Delivered
             </button>
@@ -452,13 +448,20 @@ const InfluencerCard = ({ influencer, onExtend, onMarkDelivered }: any) => {
 // ============================================
 // CAMPAIGNS LIST VIEW
 // ============================================
-const CampaignsListView = ({ campaigns, onSelectCampaign, filters, setFilters }: any) => {
-  const totalCampaigns = campaigns.length;
-  const activeCampaigns = campaigns.filter((c: any) => c.status === 'active').length;
-  const completedCampaigns = campaigns.filter((c: any) => c.status === 'completed').length;
-  const campaignsWithIssues = campaigns.filter((c: any) => getIssues(c).length > 0);
+interface CampaignsListViewProps {
+  campaigns: Campaign[];
+  onSelectCampaign: (campaign: Campaign) => void;
+  filters: FiltersState;
+  setFilters: React.Dispatch<React.SetStateAction<FiltersState>>;
+}
 
-  const filteredCampaigns = campaigns.filter((c: any) => {
+const CampaignsListView = ({ campaigns, onSelectCampaign, filters, setFilters }: CampaignsListViewProps) => {
+  const totalCampaigns = campaigns.length;
+  const activeCampaigns = useMemo(() => campaigns.filter((c) => c.status === 'active').length, [campaigns]);
+  const completedCampaigns = useMemo(() => campaigns.filter((c) => c.status === 'completed').length, [campaigns]);
+  const campaignsWithIssues = useMemo(() => campaigns.filter((c) => getIssues(c).length > 0), [campaigns]);
+
+  const filteredCampaigns = useMemo(() => campaigns.filter((c) => {
     if (filters.status !== 'all' && c.status !== filters.status) return false;
     if (filters.type !== 'all' && c.type !== filters.type) return false;
     if (filters.search) {
@@ -466,20 +469,24 @@ const CampaignsListView = ({ campaigns, onSelectCampaign, filters, setFilters }:
       return c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q) || c.business.name.toLowerCase().includes(q);
     }
     return true;
-  });
+  }), [campaigns, filters]);
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-slate-50">
       {/* Header */}
-      <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0">
+      <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-10 shrink-0">
         <div>
-          <h1 className="text-lg font-semibold text-slate-900">Campaign Oversight</h1>
-          <p className="text-sm text-slate-500">Monitor and manage all platform campaigns</p>
+          <h1 className="text-lg font-semibold text-gray-900">Campaign Oversight</h1>
+          <p className="text-sm text-gray-500">Monitor and manage all platform campaigns</p>
         </div>
-        <button className="h-9 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center gap-2 text-sm text-slate-600 transition-colors">
-          <Icons.refresh className="w-4 h-4" />
-          Refresh
-        </button>
+        <div className="flex items-center gap-3">
+          <button className="h-9 px-4 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 flex items-center gap-2 text-sm text-gray-600 transition-colors">
+            <Icons.refresh className="w-4 h-4" />
+            Refresh
+          </button>
+          <div className="w-px h-8 bg-gray-200" />
+          <AdminDropdown />
+        </div>
       </header>
 
       {/* Content */}
@@ -513,7 +520,7 @@ const CampaignsListView = ({ campaigns, onSelectCampaign, filters, setFilters }:
               <h2 className="text-sm font-semibold text-slate-900">NEEDS ATTENTION ({campaignsWithIssues.length})</h2>
             </div>
             <div className="bg-white rounded-2xl border border-rose-200 divide-y divide-rose-100 overflow-hidden">
-              {campaignsWithIssues.map((campaign: any) => {
+              {campaignsWithIssues.map((campaign) => {
                 const issues = getIssues(campaign);
                 return (
                   <div
@@ -527,7 +534,7 @@ const CampaignsListView = ({ campaigns, onSelectCampaign, filters, setFilters }:
                       <p className="text-xs text-slate-500">{campaign.business.name}</p>
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      {issues.slice(0, 2).map((issue: any, i: number) => (
+                      {issues.slice(0, 2).map((issue, i: number) => (
                         <span key={i} className={`px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap ${
                           issue.severity === 'high' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
                         }`}>
@@ -553,7 +560,7 @@ const CampaignsListView = ({ campaigns, onSelectCampaign, filters, setFilters }:
           {/* Filters */}
           <div className="p-4 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl">
-              {['all', 'active', 'completed', 'cancelled'].map((status) => (
+              {(['all', 'active', 'completed', 'cancelled'] as const).map((status) => (
                 <button
                   key={status}
                   onClick={() => setFilters({ ...filters, status })}
@@ -568,7 +575,7 @@ const CampaignsListView = ({ campaigns, onSelectCampaign, filters, setFilters }:
             <div className="flex items-center gap-3">
               <select
                 value={filters.type}
-                onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+                onChange={(e) => setFilters({ ...filters, type: e.target.value as CampaignType | 'all' })}
                 className="h-10 px-4 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Types</option>
@@ -593,6 +600,7 @@ const CampaignsListView = ({ campaigns, onSelectCampaign, filters, setFilters }:
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-100">
+                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3 w-12">#</th>
                 <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Campaign</th>
                 <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Business</th>
                 <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Type</th>
@@ -603,12 +611,12 @@ const CampaignsListView = ({ campaigns, onSelectCampaign, filters, setFilters }:
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredCampaigns.map((campaign: any) => {
+              {filteredCampaigns.map((campaign, index) => {
                 const typeConfig = getTypeConfig(campaign.type);
                 const statusConfig = getStatusConfig(campaign.status);
                 const TypeIcon = (Icons as any)[typeConfig.icon];
                 const issues = getIssues(campaign);
-                const completedInfluencers = campaign.influencers?.filter((i: any) => i.status === 'completed').length || 0;
+                const completedInfluencers = campaign.influencers?.filter((i) => i.status === 'completed').length || 0;
                 const totalInfluencers = campaign.influencers?.length || 0;
 
                 return (
@@ -617,6 +625,10 @@ const CampaignsListView = ({ campaigns, onSelectCampaign, filters, setFilters }:
                     className="hover:bg-slate-50 cursor-pointer group"
                     onClick={() => onSelectCampaign(campaign)}
                   >
+                    {/* Row Number */}
+                    <td className="px-5 py-4">
+                      <span className="text-sm text-slate-400 font-medium">{index + 1}</span>
+                    </td>
                     <td className="px-5 py-4">
                       <p className="text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">{campaign.name}</p>
                       <p className="text-xs text-slate-500">{campaign.id} • {campaign.category}</p>
@@ -661,7 +673,7 @@ const CampaignsListView = ({ campaigns, onSelectCampaign, filters, setFilters }:
                     <td className="px-5 py-4">
                       {issues.length > 0 ? (
                         <span className={`px-2.5 py-1 rounded-lg text-xs font-medium ${
-                          issues.some((i: any) => i.severity === 'high') ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
+                          issues.some((i) => i.severity === 'high') ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
                         }`}>
                           {issues.length} {issues.length === 1 ? 'issue' : 'issues'}
                         </span>
@@ -695,10 +707,15 @@ const CampaignsListView = ({ campaigns, onSelectCampaign, filters, setFilters }:
 // ============================================
 // CAMPAIGN DETAIL VIEW
 // ============================================
-const CampaignDetailView = ({ campaign, onBack }: any) => {
+interface CampaignDetailViewProps {
+  campaign: Campaign;
+  onBack: () => void;
+}
+
+const CampaignDetailView = ({ campaign, onBack }: CampaignDetailViewProps) => {
   const [activeTab, setActiveTab] = useState('influencers');
-  const [showExtendModal, setShowExtendModal] = useState<any>(null);
-  const [showDeliveredModal, setShowDeliveredModal] = useState<any>(null);
+  const [showExtendModal, setShowExtendModal] = useState<CampaignInfluencer | null>(null);
+  const [showDeliveredModal, setShowDeliveredModal] = useState<CampaignInfluencer | null>(null);
   const [newNote, setNewNote] = useState('');
   const [adminNotes, setAdminNotes] = useState(mockAdminNotes);
 
@@ -708,11 +725,11 @@ const CampaignDetailView = ({ campaign, onBack }: any) => {
 
   // Group influencers by status
   const groupedInfluencers = {
-    awaiting_signature: campaign.influencers?.filter((i: any) => i.status === 'awaiting_signature') || [],
-    creating_content: campaign.influencers?.filter((i: any) => ['creating_content', 'content_revision'].includes(i.status)) || [],
-    pending_review: campaign.influencers?.filter((i: any) => i.status === 'content_submitted') || [],
-    completed: campaign.influencers?.filter((i: any) => i.status === 'completed') || [],
-    disputed: campaign.influencers?.filter((i: any) => i.status === 'disputed') || [],
+    awaiting_signature: campaign.influencers?.filter((i) => i.status === 'awaiting_signature') || [],
+    creating_content: campaign.influencers?.filter((i) => ['creating_content', 'content_revision'].includes(i.status)) || [],
+    pending_review: campaign.influencers?.filter((i) => i.status === 'content_submitted') || [],
+    completed: campaign.influencers?.filter((i) => i.status === 'completed') || [],
+    disputed: campaign.influencers?.filter((i) => i.status === 'disputed') || [],
   };
 
   const tabs = [
@@ -756,16 +773,16 @@ const CampaignDetailView = ({ campaign, onBack }: any) => {
         {issues.length > 0 && (
           <div className="px-6 pb-4">
             <div className={`p-4 rounded-xl border ${
-              issues.some((i: any) => i.severity === 'high') ? 'bg-rose-50 border-rose-200' : 'bg-amber-50 border-amber-200'
+              issues.some((i) => i.severity === 'high') ? 'bg-rose-50 border-rose-200' : 'bg-amber-50 border-amber-200'
             }`}>
               <div className="flex items-center gap-2 mb-2">
-                <Icons.alertTriangle className={`w-4 h-4 ${issues.some((i: any) => i.severity === 'high') ? 'text-rose-600' : 'text-amber-600'}`} />
-                <span className={`text-sm font-semibold ${issues.some((i: any) => i.severity === 'high') ? 'text-rose-700' : 'text-amber-700'}`}>
+                <Icons.alertTriangle className={`w-4 h-4 ${issues.some((i) => i.severity === 'high') ? 'text-rose-600' : 'text-amber-600'}`} />
+                <span className={`text-sm font-semibold ${issues.some((i) => i.severity === 'high') ? 'text-rose-700' : 'text-amber-700'}`}>
                   {issues.length} {issues.length === 1 ? 'Issue' : 'Issues'} Need Attention
                 </span>
               </div>
               <div className="flex flex-wrap gap-2">
-                {issues.map((issue: any, i: number) => (
+                {issues.map((issue, i: number) => (
                   <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium ${
                     issue.severity === 'high' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
                   }`}>
@@ -855,7 +872,7 @@ const CampaignDetailView = ({ campaign, onBack }: any) => {
                     <h3 className="text-sm font-semibold text-rose-700">DISPUTED ({groupedInfluencers.disputed.length})</h3>
                   </div>
                   <div className="space-y-3">
-                    {groupedInfluencers.disputed.map((inf: any) => (
+                    {groupedInfluencers.disputed.map((inf) => (
                       <InfluencerCard key={inf.id} influencer={inf} onExtend={setShowExtendModal} onMarkDelivered={setShowDeliveredModal} />
                     ))}
                   </div>
@@ -869,7 +886,7 @@ const CampaignDetailView = ({ campaign, onBack }: any) => {
                     <h3 className="text-sm font-semibold text-amber-700">AWAITING SIGNATURE ({groupedInfluencers.awaiting_signature.length})</h3>
                   </div>
                   <div className="space-y-3">
-                    {groupedInfluencers.awaiting_signature.map((inf: any) => (
+                    {groupedInfluencers.awaiting_signature.map((inf) => (
                       <InfluencerCard key={inf.id} influencer={inf} onExtend={setShowExtendModal} onMarkDelivered={setShowDeliveredModal} />
                     ))}
                   </div>
@@ -883,7 +900,7 @@ const CampaignDetailView = ({ campaign, onBack }: any) => {
                     <h3 className="text-sm font-semibold text-blue-700">CREATING CONTENT ({groupedInfluencers.creating_content.length})</h3>
                   </div>
                   <div className="space-y-3">
-                    {groupedInfluencers.creating_content.map((inf: any) => (
+                    {groupedInfluencers.creating_content.map((inf) => (
                       <InfluencerCard key={inf.id} influencer={inf} onExtend={setShowExtendModal} onMarkDelivered={setShowDeliveredModal} />
                     ))}
                   </div>
@@ -897,7 +914,7 @@ const CampaignDetailView = ({ campaign, onBack }: any) => {
                     <h3 className="text-sm font-semibold text-orange-700">PENDING BUSINESS REVIEW ({groupedInfluencers.pending_review.length})</h3>
                   </div>
                   <div className="space-y-3">
-                    {groupedInfluencers.pending_review.map((inf: any) => (
+                    {groupedInfluencers.pending_review.map((inf) => (
                       <InfluencerCard key={inf.id} influencer={inf} onExtend={setShowExtendModal} onMarkDelivered={setShowDeliveredModal} />
                     ))}
                   </div>
@@ -911,7 +928,7 @@ const CampaignDetailView = ({ campaign, onBack }: any) => {
                     <h3 className="text-sm font-semibold text-emerald-700">COMPLETED ({groupedInfluencers.completed.length})</h3>
                   </div>
                   <div className="space-y-3">
-                    {groupedInfluencers.completed.map((inf: any) => (
+                    {groupedInfluencers.completed.map((inf) => (
                       <InfluencerCard key={inf.id} influencer={inf} onExtend={setShowExtendModal} onMarkDelivered={setShowDeliveredModal} />
                     ))}
                   </div>
@@ -938,7 +955,7 @@ const CampaignDetailView = ({ campaign, onBack }: any) => {
                     PENDING REVIEW ({groupedInfluencers.pending_review.length})
                   </h3>
                   <div className="space-y-3">
-                    {groupedInfluencers.pending_review.map((inf: any) => (
+                    {groupedInfluencers.pending_review.map((inf) => (
                       <div key={inf.id} className="p-5 rounded-2xl border border-amber-200 bg-amber-50/50">
                         <div className="flex items-start gap-4">
                           <div className="w-20 h-20 rounded-xl bg-slate-200 flex items-center justify-center">
@@ -957,12 +974,12 @@ const CampaignDetailView = ({ campaign, onBack }: any) => {
                               <div className="flex items-center justify-between mb-1">
                                 <span className="text-xs text-amber-700 font-medium flex items-center gap-1">
                                   <Icons.timer className="w-3.5 h-3.5" />
-                                  Auto-approve in {inf.hoursUntilAutoApprove}h
+                                  Auto-approve in {inf.hoursUntilAutoApprove ?? 48}h
                                 </span>
                                 <span className="text-xs text-slate-500">Business hasn't reviewed</span>
                               </div>
                               <div className="h-2 bg-amber-200 rounded-full overflow-hidden">
-                                <div className="h-full bg-amber-500 rounded-full transition-all" style={{ width: `${((48 - inf.hoursUntilAutoApprove) / 48) * 100}%` }} />
+                                <div className="h-full bg-amber-500 rounded-full transition-all" style={{ width: `${((48 - (inf.hoursUntilAutoApprove ?? 48)) / 48) * 100}%` }} />
                               </div>
                             </div>
 
@@ -991,7 +1008,7 @@ const CampaignDetailView = ({ campaign, onBack }: any) => {
                     APPROVED ({groupedInfluencers.completed.length})
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
-                    {groupedInfluencers.completed.map((inf: any) => (
+                    {groupedInfluencers.completed.map((inf) => (
                       <div key={inf.id} className="p-4 rounded-xl border border-slate-200 bg-white flex items-center gap-3">
                         <div className="w-14 h-14 rounded-lg bg-slate-100 flex items-center justify-center">
                           <Icons.checkCircle className="w-6 h-6 text-emerald-500" />
@@ -1078,7 +1095,7 @@ const CampaignDetailView = ({ campaign, onBack }: any) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {campaign.influencers?.map((inf: any) => {
+                    {campaign.influencers?.map((inf) => {
                       const commission = inf.payment * 0.03;
                       const netPayout = inf.payment - commission;
                       return (
@@ -1356,8 +1373,8 @@ const CampaignDetailView = ({ campaign, onBack }: any) => {
 // ============================================
 export default function CampaignsPage() {
   const [activePage, setActivePage] = useState('campaigns');
-  const [selectedCampaign, setSelectedCampaign] = useState<any>(null);
-  const [filters, setFilters] = useState({ status: 'all', type: 'all', search: '' });
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
+  const [filters, setFilters] = useState<FiltersState>({ status: 'all', type: 'all', search: '' });
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans antialiased">
@@ -1365,19 +1382,21 @@ export default function CampaignsPage() {
       <Sidebar active={activePage} setActive={setActivePage} />
 
       {/* Main Content */}
-      {selectedCampaign ? (
-        <CampaignDetailView
-          campaign={selectedCampaign}
-          onBack={() => setSelectedCampaign(null)}
-        />
-      ) : (
-        <CampaignsListView
-          campaigns={mockCampaigns}
-          onSelectCampaign={setSelectedCampaign}
-          filters={filters}
-          setFilters={setFilters}
-        />
-      )}
+      <div className="flex-1 ml-60">
+        {selectedCampaign ? (
+          <CampaignDetailView
+            campaign={selectedCampaign}
+            onBack={() => setSelectedCampaign(null)}
+          />
+        ) : (
+          <CampaignsListView
+            campaigns={mockCampaigns}
+            onSelectCampaign={setSelectedCampaign}
+            filters={filters}
+            setFilters={setFilters}
+          />
+        )}
+      </div>
     </div>
   );
 }

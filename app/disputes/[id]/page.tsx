@@ -6,7 +6,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
 import { Icons } from '@/components/common/Icons';
 import DisputeStatusBadge from '@/components/disputes/DisputeStatusBadge';
@@ -15,17 +15,18 @@ import DisputePartyCard from '@/components/disputes/DisputePartyCard';
 import EvidenceSection from '@/components/disputes/EvidenceSection';
 import TimelineSection from '@/components/disputes/TimelineSection';
 import DecisionModal from '@/components/disputes/DecisionModal';
-import ContractRequirements from '@/components/disputes/ContractRequirements';
 import { MOCK_DISPUTES } from '@/lib/constants';
+import type { DisputeResolution } from '@/types';
 
-export default function DisputeDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+export default function DisputeDetailsPage() {
   const router = useRouter();
+  const params = useParams<{ id: string }>();
   const [activePage, setActivePage] = useState('disputes');
   const [activeTab, setActiveTab] = useState<'overview' | 'evidence' | 'timeline'>('overview');
   const [showDecisionModal, setShowDecisionModal] = useState(false);
 
-  // Unwrap params Promise (Next.js 15+)
-  const { id } = React.use(params);
+  // Get id from params
+  const id = params.id;
 
   // Find dispute by ID
   const dispute = MOCK_DISPUTES.find((d) => d.id === id);
@@ -54,7 +55,7 @@ export default function DisputeDetailsPage({ params }: { params: Promise<{ id: s
     { id: 'timeline', label: 'Timeline' },
   ];
 
-  const handleDecisionSubmit = (decision: any) => {
+  const handleDecisionSubmit = (decision: { type: string; percentage: number; reasoning: string }) => {
     console.log('Decision submitted:', decision);
     setShowDecisionModal(false);
     router.push('/disputes');
@@ -66,7 +67,7 @@ export default function DisputeDetailsPage({ params }: { params: Promise<{ id: s
       <Sidebar active={activePage} setActive={setActivePage} />
 
       {/* Main Content */}
-      <div className="flex-1 bg-gray-50 overflow-y-auto">
+      <div className="flex-1 bg-gray-50 overflow-y-auto ml-60">
         {/* Header */}
         <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-5 sticky top-0 z-10">
           <div className="flex items-center gap-4">
@@ -177,11 +178,6 @@ export default function DisputeDetailsPage({ params }: { params: Promise<{ id: s
                     })}
                   </p>
                 </div>
-
-                {/* Contract Requirements */}
-                {dispute.requirements && dispute.requirements.length > 0 && (
-                  <ContractRequirements requirements={dispute.requirements} />
-                )}
 
                 {/* Resolution (if resolved) */}
                 {dispute.status === 'resolved' && dispute.resolutionNote && (

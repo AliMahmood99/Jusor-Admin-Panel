@@ -7,10 +7,11 @@
 
 import React from 'react';
 import { Icons } from '@/components/common/Icons';
+import type { Payout, PayoutPlatform, PayoutStatus } from '@/types';
 
 interface PayoutCardProps {
-  payout: any;
-  onMarkAsPaid: (payout: any) => void;
+  payout: Payout;
+  onMarkAsPaid: (payout: Payout) => void;
   onCopyIBAN: (id: string, iban: string) => void;
   onViewCampaign: (campaignId: string) => void;
   copiedId: string | null;
@@ -61,14 +62,15 @@ export default function PayoutCard({
   const isHighValue = payout.amount >= 20000;
   const isCopied = copiedId === payout.id;
 
-  const platformColors: any = {
+  const platformColors: Record<PayoutPlatform, string> = {
     instagram: 'from-pink-500 to-purple-500',
     tiktok: 'from-slate-800 to-slate-900',
     snapchat: 'from-yellow-400 to-yellow-500',
     youtube: 'from-red-500 to-red-600',
+    twitter: 'from-blue-400 to-blue-500',
   };
 
-  const statusConfig: any = {
+  const statusConfig: Record<PayoutStatus, { bg: string; border: string; text: string; label: string }> = {
     pending: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', label: 'Pending' },
     completed: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', label: 'Completed' },
   };

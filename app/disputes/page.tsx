@@ -8,13 +8,25 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
+import AdminDropdown from '@/components/layout/AdminDropdown';
 import { Icons } from '@/components/common/Icons';
 import DisputeStatusBadge from '@/components/disputes/DisputeStatusBadge';
 import DisputePriorityBadge from '@/components/disputes/DisputePriorityBadge';
 import UrgentDisputeCard from '@/components/disputes/UrgentDisputeCard';
 import { MOCK_DISPUTES } from '@/lib/constants';
 import { getDisputeStats, getUrgentDisputes } from '@/lib/disputeUtils';
+import { statCardColors } from '@/lib/designSystem';
 import type { Dispute, DisputeStatus, DisputePriority } from '@/types';
+
+// Status tab badge styles (static Tailwind classes)
+const statusBadgeStyles = {
+  all: { active: 'bg-gray-100 text-gray-600' },
+  new: { active: 'bg-rose-100 text-rose-600' },
+  evidence: { active: 'bg-amber-100 text-amber-600' },
+  review: { active: 'bg-blue-100 text-blue-600' },
+  resolved: { active: 'bg-emerald-100 text-emerald-600' },
+  escalated: { active: 'bg-purple-100 text-purple-600' },
+} as const;
 
 export default function DisputesPage() {
   const router = useRouter();
@@ -59,24 +71,20 @@ export default function DisputesPage() {
       <Sidebar active={activePage} setActive={setActivePage} />
 
       {/* Main Content */}
-      <div className="flex-1 bg-gray-50 overflow-y-auto">
+      <div className="flex-1 bg-gray-50 overflow-y-auto ml-60">
         {/* Header */}
-        <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-5 sticky top-0 z-10">
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-10">
           <div>
-            <h1 className="text-base font-semibold text-gray-900">Dispute Resolution</h1>
-            <p className="text-xs text-gray-500">Manage and resolve platform disputes</p>
+            <h1 className="text-lg font-semibold text-gray-900">Dispute Resolution</h1>
+            <p className="text-sm text-gray-500">Manage and resolve platform disputes</p>
           </div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3">
             <button className="h-9 px-4 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 flex items-center gap-2 text-sm text-gray-600 transition-colors">
               <Icons.refresh className="w-4 h-4" />
               Refresh
             </button>
-            <button className="relative h-9 w-9 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center transition-colors">
-              <Icons.bell className="w-4 h-4 text-gray-600" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-[10px] font-bold text-white flex items-center justify-center">
-                3
-              </span>
-            </button>
+            <div className="w-px h-8 bg-gray-200" />
+            <AdminDropdown />
           </div>
         </header>
 
@@ -85,17 +93,18 @@ export default function DisputesPage() {
           {/* Stats Cards */}
           <div className="grid grid-cols-4 gap-4">
             {[
-              { label: 'Total Open', value: stats.totalOpen, icon: 'scale', color: 'blue', change: `${urgentDisputes.length} urgent` },
-              { label: 'Awaiting Evidence', value: stats.awaitingEvidence, icon: 'fileText', color: 'amber', change: 'Pending' },
-              { label: 'Decision Due', value: stats.decisionDue, icon: 'clock', color: 'rose', change: '< 72h' },
-              { label: 'Value at Stake', value: `SAR ${(stats.valueAtStake / 1000).toFixed(0)}K`, icon: 'dollarSign', color: 'violet', change: `${stats.totalOpen} cases` },
-            ].map((stat, i) => {
-              const IconComp = Icons[stat.icon as keyof typeof Icons];
+              { label: 'Total Open', value: stats.totalOpen, icon: 'scale' as const, color: 'blue' as const, change: `${urgentDisputes.length} urgent` },
+              { label: 'Awaiting Evidence', value: stats.awaitingEvidence, icon: 'fileText' as const, color: 'amber' as const, change: 'Pending' },
+              { label: 'Decision Due', value: stats.decisionDue, icon: 'clock' as const, color: 'rose' as const, change: '< 72h' },
+              { label: 'Value at Stake', value: `SAR ${(stats.valueAtStake / 1000).toFixed(0)}K`, icon: 'dollarSign' as const, color: 'violet' as const, change: `${stats.totalOpen} cases` },
+            ].map((stat) => {
+              const IconComp = Icons[stat.icon];
+              const colors = statCardColors[stat.color];
               return (
-                <div key={i} className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow">
+                <div key={stat.label} className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between mb-3">
-                    <div className={`w-11 h-11 rounded-xl bg-${stat.color}-50 flex items-center justify-center`}>
-                      {IconComp && <IconComp className={`w-5 h-5 text-${stat.color}-600`} />}
+                    <div className={`w-11 h-11 rounded-xl ${colors.iconBg} flex items-center justify-center`}>
+                      {IconComp && <IconComp className={`w-5 h-5 ${colors.iconText}`} />}
                     </div>
                     <span className="text-[11px] text-gray-400 font-medium">{stat.change}</span>
                   </div>
@@ -112,30 +121,32 @@ export default function DisputesPage() {
               {/* Status Tabs */}
               <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
                 {[
-                  { id: 'all', label: 'All' },
-                  { id: 'new', label: 'New', color: 'rose' },
-                  { id: 'evidence', label: 'Evidence', color: 'amber' },
-                  { id: 'review', label: 'Review', color: 'blue' },
-                  { id: 'resolved', label: 'Resolved', color: 'emerald' },
-                  { id: 'escalated', label: 'Escalated', color: 'purple' },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setStatusFilter(tab.id as typeof statusFilter)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all
-                      ${statusFilter === tab.id
-                        ? 'bg-white text-gray-900 shadow-sm'
-                        : 'text-gray-500 hover:text-gray-700'}`}
-                  >
-                    {tab.label}
-                    <span className={`min-w-[22px] h-[22px] px-1.5 rounded-md text-xs font-semibold flex items-center justify-center
-                      ${statusFilter === tab.id
-                        ? `bg-${tab.color || 'gray'}-100 text-${tab.color || 'gray'}-600`
-                        : 'bg-gray-200 text-gray-500'}`}>
-                      {statusCounts[tab.id as keyof typeof statusCounts]}
-                    </span>
-                  </button>
-                ))}
+                  { id: 'all' as const, label: 'All' },
+                  { id: 'new' as const, label: 'New' },
+                  { id: 'evidence' as const, label: 'Evidence' },
+                  { id: 'review' as const, label: 'Review' },
+                  { id: 'resolved' as const, label: 'Resolved' },
+                  { id: 'escalated' as const, label: 'Escalated' },
+                ].map((tab) => {
+                  const isActive = statusFilter === tab.id;
+                  const badgeStyle = statusBadgeStyles[tab.id];
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setStatusFilter(tab.id)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all
+                        ${isActive
+                          ? 'bg-white text-gray-900 shadow-sm'
+                          : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                      {tab.label}
+                      <span className={`min-w-[22px] h-[22px] px-1.5 rounded-md text-xs font-semibold flex items-center justify-center
+                        ${isActive ? badgeStyle.active : 'bg-gray-200 text-gray-500'}`}>
+                        {statusCounts[tab.id]}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Search & Priority Filter */}
@@ -194,6 +205,7 @@ export default function DisputesPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-100">
+                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4 w-12">#</th>
                   <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4">Dispute</th>
                   <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4">Parties</th>
                   <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4">Amount</th>
@@ -206,19 +218,23 @@ export default function DisputesPage() {
               <tbody className="divide-y divide-gray-100">
                 {filteredDisputes.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-16 text-center">
+                    <td colSpan={8} className="py-16 text-center">
                       <Icons.scale className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                       <h3 className="text-lg font-semibold text-gray-900 mb-1">No disputes found</h3>
                       <p className="text-sm text-gray-500">Try adjusting your filters</p>
                     </td>
                   </tr>
                 ) : (
-                  filteredDisputes.map((dispute) => (
+                  filteredDisputes.map((dispute, index) => (
                     <tr
                       key={dispute.id}
                       onClick={() => router.push(`/disputes/${dispute.id}`)}
                       className="hover:bg-gray-50 transition-colors cursor-pointer group"
                     >
+                      {/* Row Number */}
+                      <td className="px-5 py-4">
+                        <span className="text-sm text-gray-400 font-medium">{index + 1}</span>
+                      </td>
                       {/* Dispute Info */}
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">

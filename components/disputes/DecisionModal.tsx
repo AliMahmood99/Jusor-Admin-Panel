@@ -9,6 +9,31 @@ import React, { useState } from 'react';
 import { Icons } from '@/components/common/Icons';
 import type { Dispute } from '@/types';
 
+// Decision option styles (static Tailwind classes)
+const decisionStyles = {
+  influencer: {
+    border: 'border-violet-500',
+    bgActive: 'bg-violet-50',
+    iconBg: 'bg-violet-100',
+    iconText: 'text-violet-600',
+    radioBg: 'border-violet-500 bg-violet-500',
+  },
+  split: {
+    border: 'border-blue-500',
+    bgActive: 'bg-blue-50',
+    iconBg: 'bg-blue-100',
+    iconText: 'text-blue-600',
+    radioBg: 'border-blue-500 bg-blue-500',
+  },
+  business: {
+    border: 'border-rose-500',
+    bgActive: 'bg-rose-50',
+    iconBg: 'bg-rose-100',
+    iconText: 'text-rose-600',
+    radioBg: 'border-rose-500 bg-rose-500',
+  },
+} as const;
+
 interface DecisionModalProps {
   dispute: Dispute;
   onClose: () => void;
@@ -103,52 +128,52 @@ export default function DecisionModal({ dispute, onClose, onSubmit }: DecisionMo
 
               {[
                 {
-                  id: 'influencer',
+                  id: 'influencer' as const,
                   label: 'Full to Influencer',
                   desc: `Release SAR ${(dispute.amountInDispute || 0).toLocaleString()} to ${dispute.influencer.name}`,
-                  icon: 'user',
-                  color: 'violet',
+                  icon: 'user' as const,
                 },
                 {
-                  id: 'split',
+                  id: 'split' as const,
                   label: 'Partial Split',
                   desc: 'Divide the amount between both parties',
-                  icon: 'dollarSign',
-                  color: 'blue',
+                  icon: 'dollarSign' as const,
                 },
                 {
-                  id: 'business',
+                  id: 'business' as const,
                   label: 'Full Refund',
                   desc: `Return SAR ${(dispute.amountInDispute || 0).toLocaleString()} to ${dispute.business.name}`,
-                  icon: 'building',
-                  color: 'rose',
+                  icon: 'building' as const,
                 },
               ].map((opt) => {
-                const Icon = Icons[opt.icon as keyof typeof Icons];
+                const Icon = Icons[opt.icon];
+                const styles = decisionStyles[opt.id];
+                const isSelected = decision.type === opt.id;
+
                 return (
                   <label
                     key={opt.id}
                     className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${
-                      decision.type === opt.id
-                        ? `border-${opt.color}-500 bg-${opt.color}-50`
+                      isSelected
+                        ? `${styles.border} ${styles.bgActive}`
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
                     <input
                       type="radio"
                       name="decision"
-                      checked={decision.type === opt.id}
-                      onChange={() => setDecision({ ...decision, type: opt.id as typeof decision.type })}
+                      checked={isSelected}
+                      onChange={() => setDecision({ ...decision, type: opt.id })}
                       className="sr-only"
                     />
                     <div
                       className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                        decision.type === opt.id ? `bg-${opt.color}-100` : 'bg-gray-100'
+                        isSelected ? styles.iconBg : 'bg-gray-100'
                       }`}
                     >
                       {Icon && (
                         <Icon
-                          className={`w-6 h-6 ${decision.type === opt.id ? `text-${opt.color}-600` : 'text-gray-400'}`}
+                          className={`w-6 h-6 ${isSelected ? styles.iconText : 'text-gray-400'}`}
                         />
                       )}
                     </div>
@@ -158,10 +183,10 @@ export default function DecisionModal({ dispute, onClose, onSubmit }: DecisionMo
                     </div>
                     <div
                       className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                        decision.type === opt.id ? `border-${opt.color}-500 bg-${opt.color}-500` : 'border-gray-300'
+                        isSelected ? styles.radioBg : 'border-gray-300'
                       }`}
                     >
-                      {decision.type === opt.id && <Icons.check className="w-3.5 h-3.5 text-white" />}
+                      {isSelected && <Icons.check className="w-3.5 h-3.5 text-white" />}
                     </div>
                   </label>
                 );

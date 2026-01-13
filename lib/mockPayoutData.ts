@@ -3,7 +3,9 @@
  * Contains sample payout information for testing
  */
 
-export const mockPayouts = [
+import type { Payout } from '@/types';
+
+export const mockPayouts: Payout[] = [
   {
     id: 'PAY-001',
     influencer: {

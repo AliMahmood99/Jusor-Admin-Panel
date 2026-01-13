@@ -251,6 +251,7 @@ export interface CampaignInfluencer {
   status: InfluencerCampaignStatus;
   payment: number;
   escrowStatus: EscrowStatus;
+  source?: 'invited' | 'applied';
 
   // Timeline
   appliedAt?: string;
@@ -498,4 +499,42 @@ export interface BusinessTransaction {
   date: string;
   status: TransactionStatus;
   reference?: string;
+}
+
+// ============================================
+// PAYOUT TYPES
+// ============================================
+
+export type PayoutStatus = 'pending' | 'completed';
+export type PayoutPlatform = 'instagram' | 'tiktok' | 'youtube' | 'snapchat' | 'twitter';
+
+export interface PayoutInfluencer {
+  id: string;
+  name: string;
+  handle: string;
+  avatar: string;
+  followers: string;
+  platform: PayoutPlatform;
+  verified: boolean;
+}
+
+export interface PayoutCampaign {
+  id: string;
+  name: string;
+  business: string;
+}
+
+export interface Payout {
+  id: string;
+  influencer: PayoutInfluencer;
+  campaign: PayoutCampaign;
+  amount: number;
+  commission: number;
+  netAmount: number;
+  iban: string;
+  status: PayoutStatus;
+  approvedAt: string;
+  contentApprovedAt: string;
+  paidAt?: string;
+  referenceNumber?: string;
 }

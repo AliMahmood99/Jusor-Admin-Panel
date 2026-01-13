@@ -7,11 +7,23 @@
 
 import React, { useState } from 'react';
 import { Icons } from '@/components/common/Icons';
+import type { Payout } from '@/types';
+
+interface PayoutConfirmData {
+  id: string;
+  referenceNumber: string;
+  receipt?: File;
+}
+
+interface FormErrors {
+  referenceNumber?: string | null;
+  receipt?: string | null;
+}
 
 interface ConfirmPaymentModalProps {
-  payout: any;
+  payout: Payout;
   onClose: () => void;
-  onConfirm: (data: any) => void;
+  onConfirm: (data: PayoutConfirmData) => void;
 }
 
 const formatCurrency = (amount: number) => `SAR ${amount.toLocaleString()}`;
@@ -25,10 +37,10 @@ export default function ConfirmPaymentModal({
   const [referenceNumber, setReferenceNumber] = useState('');
   const [receipt, setReceipt] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const validate = () => {
-    const newErrors: any = {};
+    const newErrors: FormErrors = {};
     if (!referenceNumber.trim()) {
       newErrors.referenceNumber = 'Reference number is required';
     }
@@ -43,7 +55,7 @@ export default function ConfirmPaymentModal({
     if (!validate()) return;
     setIsSubmitting(true);
     setTimeout(() => {
-      onConfirm({ ...payout, referenceNumber, receipt });
+      onConfirm({ id: payout.id, referenceNumber, receipt: receipt ?? undefined });
       setIsSubmitting(false);
     }, 1000);
   };
@@ -109,7 +121,7 @@ export default function ConfirmPaymentModal({
               value={referenceNumber}
               onChange={(e) => {
                 setReferenceNumber(e.target.value);
-                if (errors.referenceNumber) setErrors((prev: any) => ({ ...prev, referenceNumber: null }));
+                if (errors.referenceNumber) setErrors((prev) => ({ ...prev, referenceNumber: null }));
               }}
               placeholder="e.g., TRF-2026010712345"
               className={`w-full h-12 px-4 rounded-xl bg-slate-50 border-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 font-mono transition-all ${
@@ -165,7 +177,7 @@ export default function ConfirmPaymentModal({
                       const file = e.target.files?.[0];
                       if (file) {
                         setReceipt(file);
-                        if (errors.receipt) setErrors((prev: any) => ({ ...prev, receipt: null }));
+                        if (errors.receipt) setErrors((prev) => ({ ...prev, receipt: null }));
                       }
                     }}
                   />

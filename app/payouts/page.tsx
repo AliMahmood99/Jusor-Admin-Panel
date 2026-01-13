@@ -7,11 +7,13 @@
 
 import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
+import AdminDropdown from '@/components/layout/AdminDropdown';
 import PayoutCard from '@/components/payouts/PayoutCard';
 import PayoutStats from '@/components/payouts/PayoutStats';
 import ConfirmPaymentModal from '@/components/payouts/ConfirmPaymentModal';
 import { Icons } from '@/components/common/Icons';
 import { mockPayouts } from '@/lib/mockPayoutData';
+import type { Payout } from '@/types';
 
 // Helper functions
 const getHoursWaiting = (date: string) => {
@@ -25,7 +27,7 @@ export default function PayoutsPage() {
   const [activePage, setActivePage] = useState('payouts');
   const [activeTab, setActiveTab] = useState('pending');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedPayout, setSelectedPayout] = useState<any>(null);
+  const [selectedPayout, setSelectedPayout] = useState<Payout | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [payouts, setPayouts] = useState(mockPayouts);
 
@@ -43,7 +45,7 @@ export default function PayoutsPage() {
   const allCompletedPayouts = payouts.filter((p) => p.status === 'completed');
 
   // Search filter
-  const filterPayouts = (list: any[]) => {
+  const filterPayouts = (list: Payout[]) => {
     if (!searchQuery) return list;
     const query = searchQuery.toLowerCase();
     return list.filter(
@@ -77,7 +79,7 @@ export default function PayoutsPage() {
   };
 
   // Mark as paid handler
-  const handleMarkAsPaid = (payout: any) => {
+  const handleMarkAsPaid = (payout: Payout) => {
     setSelectedPayout(payout);
   };
 
@@ -89,7 +91,7 @@ export default function PayoutsPage() {
   };
 
   // Confirm payment handler
-  const handleConfirmPayment = (payoutData: any) => {
+  const handleConfirmPayment = (payoutData: { id: string; referenceNumber: string }) => {
     setPayouts((prev) =>
       prev.map((p) =>
         p.id === payoutData.id
@@ -129,27 +131,27 @@ export default function PayoutsPage() {
       <Sidebar active={activePage} setActive={setActivePage} />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden ml-60">
         {/* Header */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-10 shrink-0">
-          <div className="flex items-center gap-4">
-            <div>
-              <h1 className="text-lg font-bold text-slate-900">Payout Management</h1>
-              <p className="text-sm text-slate-500">Process influencer payments</p>
-            </div>
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-10 shrink-0">
+          <div>
+            <h1 className="text-lg font-semibold text-gray-900">Payout Management</h1>
+            <p className="text-sm text-gray-500">Process influencer payments</p>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={handleExport}
-              className="h-10 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm font-medium text-slate-600 flex items-center gap-2 transition-colors"
+              className="h-9 px-4 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-sm text-gray-600 flex items-center gap-2 transition-colors"
             >
               <Icons.download className="w-4 h-4" />
-              Export Pending
+              Export
             </button>
-            <button className="h-10 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm font-medium text-slate-600 flex items-center gap-2 transition-colors">
+            <button className="h-9 px-4 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-sm text-gray-600 flex items-center gap-2 transition-colors">
               <Icons.refresh className="w-4 h-4" />
               Refresh
             </button>
+            <div className="w-px h-8 bg-gray-200" />
+            <AdminDropdown />
           </div>
         </header>
 

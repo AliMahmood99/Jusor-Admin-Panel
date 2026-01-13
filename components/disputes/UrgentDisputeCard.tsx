@@ -7,8 +7,16 @@
 
 import React from 'react';
 import { Icons } from '@/components/common/Icons';
-import type { Dispute } from '@/types';
-import { formatDeadline, getPriorityColor } from '@/lib/disputeUtils';
+import type { Dispute, DisputePriority } from '@/types';
+import { formatDeadline } from '@/lib/disputeUtils';
+
+// Priority badge styles (static Tailwind classes)
+const priorityBadgeStyles: Record<DisputePriority, string> = {
+  critical: 'bg-rose-500 text-white',
+  high: 'bg-amber-500 text-white',
+  medium: 'bg-blue-500 text-white',
+  low: 'bg-gray-400 text-white',
+};
 
 interface UrgentDisputeCardProps {
   dispute: Dispute;
@@ -16,7 +24,7 @@ interface UrgentDisputeCardProps {
 }
 
 export default function UrgentDisputeCard({ dispute, onSelect }: UrgentDisputeCardProps) {
-  const priorityColor = getPriorityColor(dispute.priority);
+  const priorityStyle = priorityBadgeStyles[dispute.priority];
   const isUrgent = dispute.hoursRemaining < 48;
 
   return (
@@ -26,7 +34,7 @@ export default function UrgentDisputeCard({ dispute, onSelect }: UrgentDisputeCa
     >
       {/* Priority Badge with Pulse */}
       <div className="absolute top-4 right-4">
-        <span className={`relative inline-flex px-3 py-1.5 rounded-full text-xs font-bold bg-${priorityColor}-500 text-white uppercase`}>
+        <span className={`relative inline-flex px-3 py-1.5 rounded-full text-xs font-bold uppercase ${priorityStyle}`}>
           {isUrgent && (
             <span className="absolute inset-0 rounded-full bg-rose-500 animate-ping opacity-75"></span>
           )}

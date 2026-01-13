@@ -7,6 +7,7 @@
 
 import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
+import AdminDropdown from '@/components/layout/AdminDropdown';
 import { Icons } from '@/components/common/Icons';
 import MetricCard from '@/components/dashboard/MetricCard';
 import PendingActionCard from '@/components/dashboard/PendingActionCard';
@@ -32,7 +33,7 @@ export default function DashboardPage() {
     <div className="flex h-screen bg-slate-50">
       <Sidebar active={activePage} setActive={setActivePage} />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden ml-60">
         {/* Header */}
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0">
           <div>
@@ -40,16 +41,12 @@ export default function DashboardPage() {
             <p className="text-sm text-slate-500">Welcome back, Ahmed. Here's what needs your attention.</p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="relative h-9 w-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition-colors">
-              <Icons.bell className="w-4 h-4 text-slate-600" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-[10px] font-bold text-white flex items-center justify-center">
-                4
-              </span>
-            </button>
             <button className="h-9 px-4 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 flex items-center gap-2 text-sm text-slate-600 transition-colors">
               <Icons.refresh className="w-4 h-4" />
               Refresh
             </button>
+            <div className="w-px h-8 bg-gray-200" />
+            <AdminDropdown />
           </div>
         </header>
 
