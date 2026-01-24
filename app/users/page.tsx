@@ -603,6 +603,7 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
             </div>
 
             <EditableVerificationField
+              key={`mawthooq-${verificationState.mawthooqVerified}`}
               label="Mawthooq ID"
               value={verificationState.mawthooqId}
               verified={verificationState.mawthooqVerified}
@@ -615,6 +616,7 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
             />
 
             <EditableVerificationField
+              key={`fal-${verificationState.falVerified}`}
               label="FAL Number (Free Agent License)"
               value={verificationState.falNumber}
               verified={verificationState.falVerified}
@@ -629,6 +631,7 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
             {/* IBAN */}
             <div className="pt-2">
               <EditableVerificationField
+                key={`iban-${verificationState.ibanVerified}`}
                 label="IBAN (Bank Account)"
                 value={verificationState.iban}
                 verified={verificationState.ibanVerified}
@@ -651,6 +654,7 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
             </div>
 
             <EditableVerificationField
+              key={`cr-${verificationState.crVerified}`}
               label="CR Number (Commercial Registration)"
               value={verificationState.crNumber}
               verified={verificationState.crVerified}
@@ -663,6 +667,7 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
             />
 
             <EditableVerificationField
+              key={`fl-${verificationState.flVerified}`}
               label="FL Number (Freelance License)"
               value={verificationState.flNumber}
               verified={verificationState.flVerified}
