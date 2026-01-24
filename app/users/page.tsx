@@ -512,18 +512,37 @@ function EditableVerificationField({
 
 // Verification Card Component
 function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: boolean }) {
+  // Local state for verification fields (in real app, this would be managed via API)
+  const [verificationState, setVerificationState] = useState<Record<string, any>>({
+    mawthooqId: isInfluencer && 'mawthooqId' in user ? user.mawthooqId : null,
+    mawthooqVerified: isInfluencer && 'mawthooqVerified' in user ? user.mawthooqVerified : false,
+    falNumber: isInfluencer && 'falNumber' in user ? user.falNumber : null,
+    falVerified: isInfluencer && 'falVerified' in user ? user.falVerified : false,
+    iban: isInfluencer && 'iban' in user ? user.iban : null,
+    ibanVerified: isInfluencer && 'ibanVerified' in user ? user.ibanVerified : false,
+    crNumber: !isInfluencer && 'crNumber' in user ? user.crNumber : null,
+    crVerified: !isInfluencer && 'crVerified' in user ? user.crVerified : false,
+    flNumber: !isInfluencer && 'flNumber' in user ? user.flNumber : null,
+    flVerified: !isInfluencer && 'flVerified' in user ? user.flVerified : false,
+  });
+
   const handleEdit = (field: string, value: string) => {
     console.log(`Editing ${field} to:`, value);
+    setVerificationState(prev => ({ ...prev, [field]: value }));
     // TODO: API call to update field
   };
 
   const handleVerify = (field: string) => {
     console.log(`Verifying ${field}`);
+    const verifiedField = field + 'Verified';
+    setVerificationState(prev => ({ ...prev, [verifiedField]: true }));
     // TODO: API call to verify field
   };
 
   const handleUnverify = (field: string) => {
     console.log(`Unverifying ${field}`);
+    const verifiedField = field + 'Verified';
+    setVerificationState(prev => ({ ...prev, [verifiedField]: false }));
     // TODO: API call to unverify field
   };
 
@@ -546,8 +565,8 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
 
             <EditableVerificationField
               label="Mawthooq ID"
-              value={user.mawthooqId}
-              verified={user.mawthooqVerified || false}
+              value={verificationState.mawthooqId}
+              verified={verificationState.mawthooqVerified}
               icon={Icons.fileText}
               onEdit={(val) => handleEdit('mawthooqId', val)}
               onVerify={() => handleVerify('mawthooqId')}
@@ -558,8 +577,8 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
 
             <EditableVerificationField
               label="FAL Number (Free Agent License)"
-              value={user.falNumber}
-              verified={user.falVerified || false}
+              value={verificationState.falNumber}
+              verified={verificationState.falVerified}
               icon={Icons.fileText}
               onEdit={(val) => handleEdit('falNumber', val)}
               onVerify={() => handleVerify('falNumber')}
@@ -572,8 +591,8 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
             <div className="pt-2">
               <EditableVerificationField
                 label="IBAN (Bank Account)"
-                value={user.iban}
-                verified={user.ibanVerified}
+                value={verificationState.iban}
+                verified={verificationState.ibanVerified}
                 icon={Icons.wallet}
                 onEdit={(val) => handleEdit('iban', val)}
                 onVerify={() => handleVerify('iban')}
@@ -594,8 +613,8 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
 
             <EditableVerificationField
               label="CR Number (Commercial Registration)"
-              value={user.crNumber}
-              verified={user.crVerified || false}
+              value={verificationState.crNumber}
+              verified={verificationState.crVerified}
               icon={Icons.building}
               onEdit={(val) => handleEdit('crNumber', val)}
               onVerify={() => handleVerify('crNumber')}
@@ -606,8 +625,8 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
 
             <EditableVerificationField
               label="FL Number (Freelance License)"
-              value={user.flNumber}
-              verified={user.flVerified || false}
+              value={verificationState.flNumber}
+              verified={verificationState.flVerified}
               icon={Icons.fileText}
               onEdit={(val) => handleEdit('flNumber', val)}
               onVerify={() => handleVerify('flNumber')}
