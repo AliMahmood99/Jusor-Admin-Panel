@@ -365,6 +365,270 @@ function UsersPageContent() {
 }
 
 // ============================================
+// VERIFICATION COMPONENTS
+// ============================================
+
+// Editable Verification Field Component
+function EditableVerificationField({
+  label,
+  value,
+  verified,
+  icon: IconComponent,
+  onEdit,
+  onVerify,
+  onUnverify,
+  placeholder = 'Not provided',
+  copyable = false,
+}: {
+  label: string;
+  value: string | null;
+  verified: boolean;
+  icon: (props: IconProps) => React.JSX.Element;
+  onEdit: (newValue: string) => void;
+  onVerify: () => void;
+  onUnverify: () => void;
+  placeholder?: string;
+  copyable?: boolean;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(value || '');
+
+  const handleSave = () => {
+    onEdit(editValue.trim());
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditValue(value || '');
+    setIsEditing(false);
+  };
+
+  const handleCopy = () => {
+    if (value) {
+      navigator.clipboard.writeText(value);
+    }
+  };
+
+  return (
+    <div className="p-3 rounded-xl bg-gray-50 border border-gray-100 hover:border-gray-200 transition-all group">
+      <div className="flex items-start gap-3">
+        <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${verified ? 'bg-emerald-100' : 'bg-gray-200'}`}>
+          <IconComponent className={`w-5 h-5 ${verified ? 'text-emerald-600' : 'text-gray-400'}`} />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm font-medium text-gray-700">{label}</span>
+            {!isEditing && (
+              <div className="flex items-center gap-1.5">
+                {value && copyable && (
+                  <button
+                    onClick={handleCopy}
+                    className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-blue-600 transition-colors opacity-0 group-hover:opacity-100"
+                    title="Copy"
+                  >
+                    <Icons.copy className="w-3.5 h-3.5" />
+                  </button>
+                )}
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-blue-600 transition-colors opacity-0 group-hover:opacity-100"
+                  title="Edit"
+                >
+                  <Icons.edit className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {isEditing ? (
+            <div className="space-y-2">
+              <input
+                type="text"
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                placeholder={placeholder}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSave();
+                  if (e.key === 'Escape') handleCancel();
+                }}
+              />
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleSave}
+                  className="px-3 py-1 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={handleCancel}
+                  className="px-3 py-1 text-xs font-medium text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-gray-500 break-all">
+              {value || placeholder}
+            </p>
+          )}
+        </div>
+
+        {!isEditing && (
+          <div className="shrink-0">
+            {verified ? (
+              <div className="flex flex-col items-end gap-1.5">
+                <span className="flex items-center gap-1 text-xs font-medium text-emerald-600">
+                  <Icons.checkCircle className="w-4 h-4" /> Verified
+                </span>
+                <button
+                  onClick={onUnverify}
+                  className="text-[10px] text-gray-400 hover:text-rose-600 hover:underline transition-colors"
+                >
+                  Unverify
+                </button>
+              </div>
+            ) : value ? (
+              <button
+                onClick={onVerify}
+                className="px-2.5 py-1 text-xs font-medium text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors"
+              >
+                Verify
+              </button>
+            ) : (
+              <span className="flex items-center gap-1 text-xs font-medium text-amber-600">
+                <Icons.clock className="w-4 h-4" /> Not Provided
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Verification Card Component
+function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: boolean }) {
+  const handleEdit = (field: string, value: string) => {
+    console.log(`Editing ${field} to:`, value);
+    // TODO: API call to update field
+  };
+
+  const handleVerify = (field: string) => {
+    console.log(`Verifying ${field}`);
+    // TODO: API call to verify field
+  };
+
+  const handleUnverify = (field: string) => {
+    console.log(`Unverifying ${field}`);
+    // TODO: API call to unverify field
+  };
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200 p-6">
+      <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <Icons.shieldCheck className="w-4 h-4 text-emerald-500" />
+        Verification & Licenses
+      </h3>
+
+      <div className="space-y-3">
+        {isInfluencer && 'mawthooqId' in user ? (
+          <>
+            {/* Mawthooq OR FAL - Only one should be filled */}
+            <div className="mb-3 pb-3 border-b border-gray-100">
+              <p className="text-xs text-gray-500 mb-3">
+                License Type: <span className="font-medium text-gray-700">Mawthooq or FAL</span> (one required)
+              </p>
+            </div>
+
+            <EditableVerificationField
+              label="Mawthooq ID"
+              value={user.mawthooqId}
+              verified={user.mawthooqVerified || false}
+              icon={Icons.fileText}
+              onEdit={(val) => handleEdit('mawthooqId', val)}
+              onVerify={() => handleVerify('mawthooqId')}
+              onUnverify={() => handleUnverify('mawthooqId')}
+              placeholder="Enter Mawthooq ID"
+              copyable
+            />
+
+            <EditableVerificationField
+              label="FAL Number (Free Agent License)"
+              value={user.falNumber}
+              verified={user.falVerified || false}
+              icon={Icons.fileText}
+              onEdit={(val) => handleEdit('falNumber', val)}
+              onVerify={() => handleVerify('falNumber')}
+              onUnverify={() => handleUnverify('falNumber')}
+              placeholder="Enter FAL Number"
+              copyable
+            />
+
+            {/* IBAN */}
+            <div className="pt-2">
+              <EditableVerificationField
+                label="IBAN (Bank Account)"
+                value={user.iban}
+                verified={user.ibanVerified}
+                icon={Icons.wallet}
+                onEdit={(val) => handleEdit('iban', val)}
+                onVerify={() => handleVerify('iban')}
+                onUnverify={() => handleUnverify('iban')}
+                placeholder="SA00 0000 0000 0000 0000 0000"
+                copyable
+              />
+            </div>
+          </>
+        ) : 'crNumber' in user ? (
+          <>
+            {/* CR OR FL - Only one should be filled */}
+            <div className="mb-3 pb-3 border-b border-gray-100">
+              <p className="text-xs text-gray-500 mb-3">
+                License Type: <span className="font-medium text-gray-700">CR or FL</span> (one required)
+              </p>
+            </div>
+
+            <EditableVerificationField
+              label="CR Number (Commercial Registration)"
+              value={user.crNumber}
+              verified={user.crVerified || false}
+              icon={Icons.building}
+              onEdit={(val) => handleEdit('crNumber', val)}
+              onVerify={() => handleVerify('crNumber')}
+              onUnverify={() => handleUnverify('crNumber')}
+              placeholder="Enter CR Number"
+              copyable
+            />
+
+            <EditableVerificationField
+              label="FL Number (Freelance License)"
+              value={user.flNumber}
+              verified={user.flVerified || false}
+              icon={Icons.fileText}
+              onEdit={(val) => handleEdit('flNumber', val)}
+              onVerify={() => handleVerify('flNumber')}
+              onUnverify={() => handleUnverify('flNumber')}
+              placeholder="Enter FL Number"
+              copyable
+            />
+          </>
+        ) : null}
+
+        {user.verificationDate && (
+          <p className="text-xs text-gray-400 text-center pt-3 mt-3 border-t border-gray-100">
+            Last verified on {new Date(user.verificationDate).toLocaleDateString()}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================
 // TAB COMPONENTS
 // ============================================
 
@@ -467,134 +731,7 @@ function OverviewTab({ user, isInfluencer }: { user: User; isInfluencer: boolean
         </div>
 
         {/* Verification Status */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Icons.shieldCheck className="w-4 h-4 text-emerald-500" />
-            Verification Status
-          </h3>
-          <div className="space-y-4">
-            {isInfluencer && 'nafathVerified' in user ? (
-              <>
-                <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <Icons.shield className="w-5 h-5 text-gray-400" />
-                    <span className="text-sm text-gray-700">Nafath Verification</span>
-                  </div>
-                  {user.nafathVerified ? (
-                    <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
-                      <Icons.checkCircle className="w-4 h-4" /> Verified
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1.5 text-xs font-medium text-amber-600">
-                      <Icons.clock className="w-4 h-4" /> Pending
-                    </span>
-                  )}
-                </div>
-                {'mawthooqId' in user && user.mawthooqId && (
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
-                    <div className="flex items-center gap-3">
-                      <Icons.fileText className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <span className="text-sm text-gray-700">Mawthooq ID</span>
-                        <p className="text-xs text-gray-500">{user.mawthooqId}</p>
-                      </div>
-                    </div>
-                    <button className="text-xs text-blue-600 hover:underline flex items-center gap-1">
-                      <Icons.copy className="w-3 h-3" /> Copy
-                    </button>
-                  </div>
-                )}
-                {'falNumber' in user && (
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
-                    <div className="flex items-center gap-3">
-                      <Icons.fileText className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <span className="text-sm text-gray-700">FAL Number</span>
-                        <p className="text-xs text-gray-500">{user.falNumber || 'Not provided'}</p>
-                      </div>
-                    </div>
-                    {user.falNumber && (
-                      <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
-                        <Icons.checkCircle className="w-4 h-4" /> Verified
-                      </span>
-                    )}
-                  </div>
-                )}
-                {'iban' in user && (
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
-                    <div className="flex items-center gap-3">
-                      <Icons.wallet className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <span className="text-sm text-gray-700">IBAN</span>
-                        <p className="text-xs text-gray-500 font-mono">{user.iban || 'Not provided'}</p>
-                      </div>
-                    </div>
-                    {'ibanVerified' in user && user.ibanVerified ? (
-                      <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
-                        <Icons.checkCircle className="w-4 h-4" /> Leantech ✓
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1.5 text-xs font-medium text-amber-600">
-                        <Icons.clock className="w-4 h-4" /> Pending
-                      </span>
-                    )}
-                  </div>
-                )}
-              </>
-            ) : 'wathiqVerified' in user ? (
-              <>
-                <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <Icons.shield className="w-5 h-5 text-gray-400" />
-                    <span className="text-sm text-gray-700">Wathiq Verification</span>
-                  </div>
-                  {user.wathiqVerified ? (
-                    <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
-                      <Icons.checkCircle className="w-4 h-4" /> Verified
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1.5 text-xs font-medium text-amber-600">
-                      <Icons.clock className="w-4 h-4" /> Pending
-                    </span>
-                  )}
-                </div>
-                {'crNumber' in user && user.crNumber && (
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
-                    <div className="flex items-center gap-3">
-                      <Icons.building className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <span className="text-sm text-gray-700">CR Number</span>
-                        <p className="text-xs text-gray-500">{user.crNumber}</p>
-                      </div>
-                    </div>
-                    <button className="text-xs text-blue-600 hover:underline flex items-center gap-1">
-                      <Icons.copy className="w-3 h-3" /> Copy
-                    </button>
-                  </div>
-                )}
-                {'flNumber' in user && user.flNumber && (
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
-                    <div className="flex items-center gap-3">
-                      <Icons.fileText className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <span className="text-sm text-gray-700">FL Number</span>
-                        <p className="text-xs text-gray-500">{user.flNumber}</p>
-                      </div>
-                    </div>
-                    <button className="text-xs text-blue-600 hover:underline flex items-center gap-1">
-                      <Icons.copy className="w-3 h-3" /> Copy
-                    </button>
-                  </div>
-                )}
-              </>
-            ) : null}
-            {user.verificationDate && (
-              <p className="text-xs text-gray-400 text-center pt-2">
-                Verified on {new Date(user.verificationDate).toLocaleDateString()}
-              </p>
-            )}
-          </div>
-        </div>
+        <VerificationCard user={user} isInfluencer={isInfluencer} />
       </div>
 
       {/* Ratings & Reviews */}

@@ -373,8 +373,11 @@ export interface BaseUser {
 export interface InfluencerUser extends BaseUser {
   type: 'influencer';
   handle: string;
-  mawthooqId: string;
+  // License: Either Mawthooq OR FAL (Free Agent License)
+  mawthooqId: string | null;
+  mawthooqVerified: boolean;
   falNumber: string | null;
+  falVerified: boolean;
   iban: string | null;
   ibanVerified: boolean;
   followers: {
@@ -389,7 +392,6 @@ export interface InfluencerUser extends BaseUser {
   pendingBalance: number;
   withdrawnAmount?: number;
   heldAmount?: number;
-  nafathVerified: boolean;
   suspensionReason?: string;
   suspendedAt?: string;
 }
@@ -397,9 +399,11 @@ export interface InfluencerUser extends BaseUser {
 // Business-specific interface
 export interface BusinessUser extends BaseUser {
   type: 'business';
+  // License: Either CR (Commercial Registration) OR FL (Freelance License)
   crNumber: string | null;
+  crVerified: boolean;
   flNumber: string | null;
-  wathiqVerified: boolean;
+  flVerified: boolean;
   walletBalance: number;
   totalSpent: number;
   currentEscrow: number;
