@@ -490,16 +490,26 @@ function EditableVerificationField({
                   <Icons.checkCircle className="w-4 h-4" /> Verified
                 </span>
                 <button
-                  onClick={onUnverify}
-                  className="text-[10px] text-gray-400 hover:text-rose-600 hover:underline transition-colors"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔴 Unverify button clicked!');
+                    onUnverify();
+                  }}
+                  className="text-[10px] text-gray-400 hover:text-rose-600 hover:underline transition-colors cursor-pointer"
                 >
                   Unverify
                 </button>
               </div>
             ) : value ? (
               <button
-                onClick={onVerify}
-                className="px-2.5 py-1 text-xs font-medium text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('🔵 Verify button clicked!');
+                  onVerify();
+                }}
+                className="px-2.5 py-1 text-xs font-medium text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors cursor-pointer"
               >
                 Verify
               </button>
