@@ -602,8 +602,8 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
               verified={verificationState.mawthooqVerified}
               icon={Icons.fileText}
               onEdit={(val) => handleEdit('mawthooqId', val)}
-              onVerify={() => handleVerify('mawthooqId')}
-              onUnverify={() => handleUnverify('mawthooqId')}
+              onVerify={() => handleVerify('mawthooq')}
+              onUnverify={() => handleUnverify('mawthooq')}
               placeholder="Enter Mawthooq ID"
               copyable
             />
@@ -615,8 +615,8 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
               verified={verificationState.falVerified}
               icon={Icons.fileText}
               onEdit={(val) => handleEdit('falNumber', val)}
-              onVerify={() => handleVerify('falNumber')}
-              onUnverify={() => handleUnverify('falNumber')}
+              onVerify={() => handleVerify('fal')}
+              onUnverify={() => handleUnverify('fal')}
               placeholder="Enter FAL Number"
               copyable
             />
@@ -653,8 +653,8 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
               verified={verificationState.crVerified}
               icon={Icons.building}
               onEdit={(val) => handleEdit('crNumber', val)}
-              onVerify={() => handleVerify('crNumber')}
-              onUnverify={() => handleUnverify('crNumber')}
+              onVerify={() => handleVerify('cr')}
+              onUnverify={() => handleUnverify('cr')}
               placeholder="Enter CR Number"
               copyable
             />
@@ -666,8 +666,8 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
               verified={verificationState.flVerified}
               icon={Icons.fileText}
               onEdit={(val) => handleEdit('flNumber', val)}
-              onVerify={() => handleVerify('flNumber')}
-              onUnverify={() => handleUnverify('flNumber')}
+              onVerify={() => handleVerify('fl')}
+              onUnverify={() => handleUnverify('fl')}
               placeholder="Enter FL Number"
               copyable
             />
