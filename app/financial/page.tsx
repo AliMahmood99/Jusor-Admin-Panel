@@ -907,6 +907,9 @@ const TransactionsList = ({ onSelectTransaction, onNavigateToReports }: Transact
 
   // Filter transactions
   const filteredTransactions = mockTransactions.filter((txn) => {
+    // Exclude wallet operations - they belong in Wallet Operations tab only
+    if (txn.type === 'wallet_deposit' || txn.type === 'wallet_withdrawal') return false;
+
     if (filters.category !== 'all' && txn.category !== filters.category) return false;
     if (filters.status !== 'all' && txn.status !== filters.status) return false;
     if (filters.search) {
