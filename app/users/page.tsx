@@ -393,6 +393,11 @@ function EditableVerificationField({
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value || '');
 
+  // Update editValue when value prop changes
+  useEffect(() => {
+    setEditValue(value || '');
+  }, [value]);
+
   const handleSave = () => {
     onEdit(editValue.trim());
     setIsEditing(false);
