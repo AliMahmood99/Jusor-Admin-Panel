@@ -383,7 +383,7 @@ function EditableVerificationField({
   label: string;
   value: string | null;
   verified: boolean;
-  icon: (props: IconProps) => React.JSX.Element;
+  icon: React.ComponentType<{ className?: string }>;
   onEdit: (newValue: string) => void;
   onVerify: () => void;
   onUnverify: () => void;
