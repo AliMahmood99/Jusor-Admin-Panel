@@ -39,9 +39,10 @@ export const SIDEBAR_GROUPS: SidebarGroup[] = [
   {
     label: 'FINANCIAL',
     items: [
-      { id: 'transactions', label: 'Transactions', icon: 'dollarSign' },
       { id: 'financial', label: 'Financial Management', icon: 'receipt' },
-      { id: 'payouts', label: 'Payouts', icon: 'wallet', count: 5, color: 'bg-emerald-500' },
+      { id: 'escrow', label: 'Escrow Monitoring', icon: 'shield', count: 5, color: 'bg-violet-500' },
+      { id: 'wallet', label: 'Wallet Operations', icon: 'wallet' },
+      { id: 'payouts', label: 'Payouts', icon: 'dollarSign', count: 5, color: 'bg-emerald-500' },
     ],
   },
   {
@@ -400,7 +401,7 @@ export const MOCK_USERS: User[] = [
     iban: 'SA03 8000 0000 6080 1016 7519',
     ibanVerified: true,
     rating: 4.8,
-    reviewCount: 24,
+    reviewCount: 8,
     followers: { instagram: 125000, tiktok: 89000, snapchat: 45000, youtube: 12000 },
     engagementRate: 4.2,
     totalCampaigns: 24,

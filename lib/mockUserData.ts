@@ -41,6 +41,164 @@ export const MOCK_BUSINESS_ACTIVITY_LOG: UserActivity[] = [
 ];
 
 // ============================================
+// USER REVIEWS
+// ============================================
+
+export interface UserReview {
+  id: string;
+  reviewerId: string;
+  reviewerName: string;
+  reviewerAvatar?: string;
+  reviewerType: 'business' | 'influencer';
+  rating: number;
+  comment: string;
+  campaignId?: string;
+  campaignName?: string;
+  timestamp: string;
+  helpful?: number;
+}
+
+// ============================================
+// ADMIN NOTES
+// ============================================
+
+export interface AdminNote {
+  id: string;
+  userId: string;
+  adminName: string;
+  noteType: 'general' | 'verification' | 'payment' | 'content' | 'warning';
+  content: string;
+  timestamp: string;
+  attachments?: string[];
+}
+
+export const MOCK_ADMIN_NOTES: AdminNote[] = [
+  {
+    id: 'NOTE-001',
+    userId: 'INF-1234',
+    adminName: 'Ali Mahmood',
+    noteType: 'verification',
+    content: 'User verification completed successfully. All documents are valid and match Nafath records.',
+    timestamp: '2026-01-20T14:30:00'
+  },
+  {
+    id: 'NOTE-002',
+    userId: 'INF-1234',
+    adminName: 'Sarah Ahmed',
+    noteType: 'general',
+    content: 'User contacted support regarding payment delay. Issue resolved and payment processed.',
+    timestamp: '2026-01-15T10:15:00'
+  },
+  {
+    id: 'NOTE-003',
+    userId: 'INF-1234',
+    adminName: 'Admin',
+    noteType: 'warning',
+    content: 'Reminder: User has pending dispute resolution for campaign CMP-2756. Follow up required.',
+    timestamp: '2025-12-30T16:45:00'
+  }
+];
+
+export const MOCK_USER_REVIEWS: UserReview[] = [
+  {
+    id: 'REV-001',
+    reviewerId: 'USR-3891',
+    reviewerName: 'Fashion House KSA',
+    reviewerType: 'business',
+    rating: 5,
+    comment: 'Exceptional work! Noura delivered high-quality content that exceeded our expectations. Her professionalism and creativity made this campaign a huge success. Highly recommended!',
+    campaignId: 'CMP-2891',
+    campaignName: 'Ramadan Collection Launch',
+    timestamp: '2025-12-15T14:30:00',
+    helpful: 12
+  },
+  {
+    id: 'REV-002',
+    reviewerId: 'USR-4562',
+    reviewerName: 'Gulf Retail LLC',
+    reviewerType: 'business',
+    rating: 5,
+    comment: 'Outstanding collaboration! The content was delivered on time and matched our brand perfectly. Will definitely work with her again.',
+    campaignId: 'CMP-2790',
+    campaignName: 'Summer Fashion Promo',
+    timestamp: '2025-11-28T16:20:00',
+    helpful: 8
+  },
+  {
+    id: 'REV-003',
+    reviewerId: 'USR-2341',
+    reviewerName: 'TechStart Inc.',
+    reviewerType: 'business',
+    rating: 4,
+    comment: 'Great experience overall. The influencer was responsive and professional. Minor delay in delivery but the quality was worth the wait.',
+    campaignId: 'CMP-2845',
+    campaignName: 'Tech Review Series',
+    timestamp: '2025-11-10T10:15:00',
+    helpful: 5
+  },
+  {
+    id: 'REV-004',
+    reviewerId: 'USR-5671',
+    reviewerName: 'Beauty Trends Arabia',
+    reviewerType: 'business',
+    rating: 5,
+    comment: 'Absolutely loved working with this influencer! Very creative and understood our brand vision instantly. The engagement on the posts was amazing!',
+    campaignId: 'CMP-2756',
+    campaignName: 'Beauty Product Launch',
+    timestamp: '2025-10-22T13:45:00',
+    helpful: 15
+  },
+  {
+    id: 'REV-005',
+    reviewerId: 'USR-8923',
+    reviewerName: 'Lifestyle Co.',
+    reviewerType: 'business',
+    rating: 4,
+    comment: 'Professional and reliable. Good communication throughout the campaign. Would work together again.',
+    campaignId: 'CMP-2689',
+    campaignName: 'Lifestyle Campaign',
+    timestamp: '2025-10-05T11:30:00',
+    helpful: 6
+  },
+  {
+    id: 'REV-006',
+    reviewerId: 'USR-7234',
+    reviewerName: 'Saudi Fashion Hub',
+    reviewerType: 'business',
+    rating: 5,
+    comment: 'Top-tier influencer! Her audience engagement is incredible and the ROI was beyond our expectations. Already planning our next campaign together.',
+    campaignId: 'CMP-2534',
+    campaignName: 'Winter Collection',
+    timestamp: '2025-09-18T15:00:00',
+    helpful: 9
+  },
+  {
+    id: 'REV-007',
+    reviewerId: 'USR-6189',
+    reviewerName: 'Digital Marketing Pro',
+    reviewerType: 'business',
+    rating: 3,
+    comment: 'Good work but there were some communication gaps. Content quality was good once delivered. Could improve response time.',
+    campaignId: 'CMP-2412',
+    campaignName: 'Brand Awareness',
+    timestamp: '2025-08-30T09:20:00',
+    helpful: 3
+  },
+  {
+    id: 'REV-008',
+    reviewerId: 'USR-9456',
+    reviewerName: 'Elegant Boutique',
+    reviewerType: 'business',
+    rating: 5,
+    comment: 'Amazing collaboration! The creativity and attention to detail were impressive. Our sales increased significantly after her posts. Thank you!',
+    campaignId: 'CMP-2301',
+    campaignName: 'New Store Opening',
+    timestamp: '2025-08-12T17:10:00',
+    helpful: 11
+  }
+];
+
+// ============================================
 // USER CAMPAIGNS
 // ============================================
 

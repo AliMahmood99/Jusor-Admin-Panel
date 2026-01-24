@@ -21,6 +21,10 @@ import {
   MOCK_BUSINESS_CAMPAIGNS,
   MOCK_INFLUENCER_TRANSACTIONS,
   MOCK_BUSINESS_TRANSACTIONS,
+  MOCK_USER_REVIEWS,
+  MOCK_ADMIN_NOTES,
+  type UserReview,
+  type AdminNote,
 } from '@/lib/mockUserData';
 import type { User, UserStatus, InfluencerUser, BusinessUser } from '@/types';
 
@@ -221,19 +225,19 @@ function UsersPageContent() {
 
           {/* Users Table */}
           <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-            <table className="w-full">
+            <table className="w-full table-fixed">
               <thead>
                 <tr className="border-b border-gray-100">
-                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4 w-12">#</th>
-                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4">User</th>
-                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4">Category</th>
-                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4">
+                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4 w-14">#</th>
+                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4 w-[22%]">User</th>
+                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4 w-[14%]">Category</th>
+                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4 w-[12%]">
                     {filters.type === 'business' ? 'Total Spent' : 'Followers'}
                   </th>
-                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4">Campaigns</th>
-                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4">Status</th>
-                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4">Rating</th>
-                  <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4">Action</th>
+                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4 w-[12%]">Campaigns</th>
+                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4 w-[10%]">Status</th>
+                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4 w-[12%]">Rating</th>
+                  <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-4 w-[12%]">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -600,34 +604,47 @@ function OverviewTab({ user, isInfluencer }: { user: User; isInfluencer: boolean
           Ratings & Reviews
         </h3>
         {user.rating > 0 ? (
-          <div className="flex items-center gap-8">
-            <div className="text-center">
-              <p className="text-4xl font-bold text-gray-900">{user.rating}</p>
-              <div className="flex items-center gap-1 justify-center mt-1">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <Icons.star
-                    key={i}
-                    className={`w-4 h-4 ${i <= Math.round(user.rating) ? 'text-amber-400' : 'text-gray-200'}`}
-                  />
-                ))}
-              </div>
-              <p className="text-xs text-gray-500 mt-1">{user.reviewCount} reviews</p>
-            </div>
-            <div className="flex-1 space-y-2">
-              {[5, 4, 3, 2, 1].map((stars) => (
-                <div key={stars} className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500 w-3">{stars}</span>
-                  <Icons.star className="w-3 h-3 text-amber-400" />
-                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-amber-400 rounded-full"
-                      style={{ width: `${stars === 5 ? 60 : stars === 4 ? 25 : stars === 3 ? 10 : 5}%` }}
+          <>
+            <div className="flex items-center gap-8 mb-6 pb-6 border-b border-gray-100">
+              <div className="text-center">
+                <p className="text-4xl font-bold text-gray-900">{user.rating}</p>
+                <div className="flex items-center gap-1 justify-center mt-1">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Icons.star
+                      key={i}
+                      className={`w-4 h-4 ${i <= Math.round(user.rating) ? 'text-amber-400' : 'text-gray-200'}`}
                     />
-                  </div>
+                  ))}
                 </div>
+                <p className="text-xs text-gray-500 mt-1">{MOCK_USER_REVIEWS.length} reviews</p>
+              </div>
+              <div className="flex-1 space-y-2">
+                {[5, 4, 3, 2, 1].map((stars) => {
+                  const count = MOCK_USER_REVIEWS.filter(r => r.rating === stars).length;
+                  const percentage = (count / MOCK_USER_REVIEWS.length) * 100;
+                  return (
+                    <div key={stars} className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500 w-3">{stars}</span>
+                      <Icons.star className="w-3 h-3 text-amber-400" />
+                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-amber-400 rounded-full transition-all"
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Reviews List */}
+            <div className="space-y-4">
+              {MOCK_USER_REVIEWS.map((review) => (
+                <ReviewCard key={review.id} review={review} />
               ))}
             </div>
-          </div>
+          </>
         ) : (
           <div className="py-8 text-center">
             <Icons.starOutline className="w-10 h-10 text-gray-300 mx-auto mb-3" />
@@ -635,6 +652,112 @@ function OverviewTab({ user, isInfluencer }: { user: User; isInfluencer: boolean
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// Review Card Component
+function ReviewCard({ review }: { review: UserReview }) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleDelete = () => {
+    // In real implementation, this would call an API
+    console.log('Deleting review:', review.id);
+    setShowDeleteConfirm(false);
+  };
+
+  const getRelativeTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+    if (diffInDays === 0) return 'Today';
+    if (diffInDays === 1) return 'Yesterday';
+    if (diffInDays < 30) return `${diffInDays} days ago`;
+    if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`;
+    return `${Math.floor(diffInDays / 365)} years ago`;
+  };
+
+  if (showDeleteConfirm) {
+    return (
+      <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
+        <div className="flex items-start gap-3">
+          <Icons.alertCircle className="w-5 h-5 text-rose-600 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="text-sm font-semibold text-rose-900 mb-1">Delete Review</h4>
+            <p className="text-sm text-rose-700 mb-3">
+              Are you sure you want to delete this review? This action cannot be undone.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={handleDelete}
+                className="px-3 py-1.5 bg-rose-600 text-white text-sm font-medium rounded-lg hover:bg-rose-700 transition-colors"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-3 py-1.5 bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="border border-gray-200 rounded-xl p-4 hover:border-gray-300 transition-colors">
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex items-start gap-3 flex-1">
+          {/* Reviewer Avatar */}
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+            {review.reviewerName.charAt(0)}
+          </div>
+
+          {/* Reviewer Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <h4 className="text-sm font-semibold text-gray-900 truncate">{review.reviewerName}</h4>
+              <span className="text-xs text-gray-400">•</span>
+              <span className="text-xs text-gray-500">{getRelativeTime(review.timestamp)}</span>
+            </div>
+
+            {/* Rating Stars */}
+            <div className="flex items-center gap-1 mb-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Icons.star
+                  key={star}
+                  className={`w-4 h-4 ${star <= review.rating ? 'text-amber-400' : 'text-gray-300'}`}
+                />
+              ))}
+            </div>
+
+            {/* Campaign Badge */}
+            {review.campaignName && (
+              <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-md mb-2">
+                <Icons.megaphone className="w-3 h-3" />
+                {review.campaignName}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Delete Button Only */}
+        <button
+          onClick={() => setShowDeleteConfirm(true)}
+          className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors flex-shrink-0"
+          title="Delete review"
+        >
+          <Icons.trash className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Review Comment */}
+      <p className="text-sm text-gray-700 leading-relaxed">{review.comment}</p>
     </div>
   );
 }
@@ -723,21 +846,21 @@ function CampaignsTab({ user, isInfluencer }: { user: User; isInfluencer: boolea
           <h3 className="text-sm font-semibold text-gray-900">Campaign History</h3>
         </div>
 
-        <table className="w-full">
+        <table className="w-full table-fixed">
           <thead className="bg-gray-50 border-b border-gray-100">
             <tr>
-              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-12">#</th>
-              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Campaign</th>
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-14">#</th>
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-[18%]">Campaign</th>
               {isInfluencer ? (
-                <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Business</th>
+                <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-[14%]">Business</th>
               ) : (
-                <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Progress</th>
+                <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-[14%]">Progress</th>
               )}
-              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Type</th>
-              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">{isInfluencer ? 'Payment' : 'Budget'}</th>
-              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Status</th>
-              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Date</th>
-              <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3"></th>
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-[10%]">Type</th>
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-[12%]">{isInfluencer ? 'Payment' : 'Budget'}</th>
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-[10%]">Status</th>
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-[12%]">Date</th>
+              <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-14"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -958,26 +1081,26 @@ function FinancialTab({ user, isInfluencer }: { user: User; isInfluencer: boolea
           <h3 className="text-sm font-semibold text-gray-900">Transaction History</h3>
         </div>
 
-        <table className="w-full">
+        <table className="w-full table-fixed">
           <thead className="bg-gray-50 border-b border-gray-100">
             <tr>
-              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-12">#</th>
-              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Transaction</th>
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-14">#</th>
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-[16%]">Transaction</th>
               {isInfluencer ? (
                 <>
-                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Campaign / Business</th>
-                  <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Gross</th>
-                  <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Commission</th>
-                  <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Net to IBAN</th>
+                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-[20%]">Campaign / Business</th>
+                  <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-[10%]">Gross</th>
+                  <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-[10%]">Commission</th>
+                  <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-[12%]">Net to IBAN</th>
                 </>
               ) : (
                 <>
-                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Details</th>
-                  <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Amount</th>
+                  <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-[28%]">Details</th>
+                  <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-[14%]">Amount</th>
                 </>
               )}
-              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Date</th>
-              <th className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">Status</th>
+              <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-[10%]">Date</th>
+              <th className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 w-[10%]">Status</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -1191,6 +1314,219 @@ function ActivityLogTab({ user, isInfluencer }: { user: User; isInfluencer: bool
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+// Admin Notes Section Component
+function AdminNotesSection({ userId }: { userId: string }) {
+  const [notes, setNotes] = useState(MOCK_ADMIN_NOTES);
+  const [showAddNote, setShowAddNote] = useState(false);
+  const [newNoteContent, setNewNoteContent] = useState('');
+  const [newNoteType, setNewNoteType] = useState<AdminNote['noteType']>('general');
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
+
+  const handleAddNote = () => {
+    if (!newNoteContent.trim()) return;
+
+    const note: AdminNote = {
+      id: `NOTE-${Date.now()}`,
+      userId,
+      adminName: 'Admin', // In real app, get from auth
+      noteType: newNoteType,
+      content: newNoteContent,
+      timestamp: new Date().toISOString()
+    };
+
+    setNotes([note, ...notes]);
+    setNewNoteContent('');
+    setNewNoteType('general');
+    setShowAddNote(false);
+  };
+
+  const handleDeleteNote = (noteId: string) => {
+    setNotes(notes.filter(n => n.id !== noteId));
+  };
+
+  const handleEditNote = (noteId: string) => {
+    const note = notes.find(n => n.id === noteId);
+    if (note) {
+      setEditingNoteId(noteId);
+      setEditContent(note.content);
+    }
+  };
+
+  const handleSaveEdit = () => {
+    if (!editContent.trim() || !editingNoteId) return;
+
+    setNotes(notes.map(n =>
+      n.id === editingNoteId
+        ? { ...n, content: editContent }
+        : n
+    ));
+    setEditingNoteId(null);
+    setEditContent('');
+  };
+
+  const getNoteTypeColor = (type: AdminNote['noteType']) => {
+    const colors = {
+      general: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
+      verification: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' },
+      payment: { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-200' },
+      content: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
+      warning: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200' },
+    };
+    return colors[type];
+  };
+
+  const getRelativeTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+    if (diffInDays === 0) return 'Today';
+    if (diffInDays === 1) return 'Yesterday';
+    if (diffInDays < 7) return `${diffInDays} days ago`;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  return (
+    <div className="mt-6 pt-6 border-t border-gray-100">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-semibold text-gray-900">Admin Notes</h4>
+        <button
+          onClick={() => setShowAddNote(!showAddNote)}
+          className="h-7 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors flex items-center gap-1.5"
+        >
+          <Icons.plus className="w-3.5 h-3.5" />
+          Add Note
+        </button>
+      </div>
+
+      {/* Add Note Form */}
+      {showAddNote && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+          <select
+            value={newNoteType}
+            onChange={(e) => setNewNoteType(e.target.value as AdminNote['noteType'])}
+            className="w-full mb-2 px-3 py-2 rounded-lg bg-white border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="general">General Note</option>
+            <option value="verification">Verification Issue</option>
+            <option value="payment">Payment Issue</option>
+            <option value="content">Content Issue</option>
+            <option value="warning">Warning</option>
+          </select>
+          <textarea
+            value={newNoteContent}
+            onChange={(e) => setNewNoteContent(e.target.value)}
+            placeholder="Type your note here..."
+            className="w-full h-20 px-3 py-2 rounded-lg bg-white border border-gray-200 text-sm placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={handleAddNote}
+              className="h-8 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
+            >
+              Save Note
+            </button>
+            <button
+              onClick={() => {
+                setShowAddNote(false);
+                setNewNoteContent('');
+                setNewNoteType('general');
+              }}
+              className="h-8 px-3 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 text-xs font-medium transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Notes Timeline */}
+      <div className="space-y-3 max-h-96 overflow-y-auto">
+        {notes.length === 0 ? (
+          <div className="py-8 text-center">
+            <Icons.fileText className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+            <p className="text-sm text-gray-500">No notes yet</p>
+          </div>
+        ) : (
+          notes.map((note) => {
+            const colors = getNoteTypeColor(note.noteType);
+            const isEditing = editingNoteId === note.id;
+
+            return (
+              <div
+                key={note.id}
+                className={`p-3 rounded-lg border ${colors.border} ${colors.bg}`}
+              >
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`text-xs font-semibold ${colors.text} uppercase tracking-wide`}>
+                        {note.noteType.replace('_', ' ')}
+                      </span>
+                      <span className="text-xs text-gray-400">•</span>
+                      <span className="text-xs text-gray-500">{note.adminName}</span>
+                    </div>
+                    <p className="text-xs text-gray-400">{getRelativeTime(note.timestamp)}</p>
+                  </div>
+                  {!isEditing && (
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleEditNote(note.id)}
+                        className="p-1 text-gray-400 hover:text-blue-600 rounded transition-colors"
+                        title="Edit note"
+                      >
+                        <Icons.edit className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteNote(note.id)}
+                        className="p-1 text-gray-400 hover:text-rose-600 rounded transition-colors"
+                        title="Delete note"
+                      >
+                        <Icons.trash className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {isEditing ? (
+                  <div>
+                    <textarea
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      className="w-full h-16 px-2 py-2 rounded-lg bg-white border border-gray-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleSaveEdit}
+                        className="h-7 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingNoteId(null);
+                          setEditContent('');
+                        }}
+                        className="h-7 px-3 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 text-xs font-medium transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-700 leading-relaxed">{note.content}</p>
+                )}
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );
@@ -1412,16 +1748,7 @@ function UserDetailView({ user, onBack }: { user: User; onBack: () => void }) {
           </div>
 
           {/* Admin Notes */}
-          <div className="mt-6 pt-6 border-t border-gray-100">
-            <h4 className="text-sm font-semibold text-gray-900 mb-3">Admin Notes</h4>
-            <textarea
-              placeholder="Add internal notes about this user..."
-              className="w-full h-28 px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-sm placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button className="mt-2 h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors">
-              Save Note
-            </button>
-          </div>
+          <AdminNotesSection userId={user.id} />
         </div>
       </div>
     </div>

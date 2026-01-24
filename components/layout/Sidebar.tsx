@@ -20,22 +20,21 @@ export default function Sidebar({ active, setActive }: SidebarProps) {
 
   const handleNavClick = (id: string) => {
     // Route to specific pages
-    if (id === 'disputes') {
-      router.push('/disputes');
-    } else if (id === 'users') {
-      router.push('/users');
-    } else if (id === 'campaigns') {
-      router.push('/campaigns');
-    } else if (id === 'transactions') {
-      router.push('/transactions');
-    } else if (id === 'financial') {
-      router.push('/financial');
-    } else if (id === 'payouts') {
-      router.push('/payouts');
-    } else if (id === 'dashboard') {
-      router.push('/');
+    const routes: Record<string, string> = {
+      'dashboard': '/',
+      'disputes': '/disputes',
+      'users': '/users',
+      'campaigns': '/campaigns',
+      'transactions': '/transactions',
+      'financial': '/financial',
+      'escrow': '/escrow',
+      'wallet': '/wallet',
+      'payouts': '/payouts',
+    };
+
+    if (routes[id]) {
+      router.push(routes[id]);
     } else {
-      // For now, just update active state
       setActive(id);
     }
   };

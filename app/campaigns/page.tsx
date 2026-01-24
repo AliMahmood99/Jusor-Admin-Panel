@@ -597,17 +597,17 @@ const CampaignsListView = ({ campaigns, onSelectCampaign, filters, setFilters }:
           </div>
 
           {/* Table */}
-          <table className="w-full">
+          <table className="w-full table-fixed">
             <thead>
               <tr className="border-b border-slate-100">
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3 w-12">#</th>
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Campaign</th>
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Business</th>
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Type</th>
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Budget</th>
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Progress</th>
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Issues</th>
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Status</th>
+                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3 w-14">#</th>
+                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3 w-[20%]">Campaign</th>
+                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3 w-[16%]">Business</th>
+                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3 w-[12%]">Type</th>
+                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3 w-[12%]">Budget</th>
+                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3 w-[14%]">Progress</th>
+                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3 w-[10%]">Issues</th>
+                <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-3 w-[10%]">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -1084,14 +1084,14 @@ const CampaignDetailView = ({ campaign, onBack }: CampaignDetailViewProps) => {
                   <h3 className="text-sm font-semibold text-slate-900">Payment Breakdown</h3>
                   <p className="text-xs text-slate-500 mt-0.5">Per-influencer payment status and commission details</p>
                 </div>
-                <table className="w-full">
+                <table className="w-full table-fixed">
                   <thead>
                     <tr className="border-b border-slate-100">
-                      <th className="text-left text-xs font-semibold text-slate-500 uppercase px-5 py-3">Influencer</th>
-                      <th className="text-right text-xs font-semibold text-slate-500 uppercase px-5 py-3">Amount</th>
-                      <th className="text-right text-xs font-semibold text-slate-500 uppercase px-5 py-3">Commission (3%)</th>
-                      <th className="text-right text-xs font-semibold text-slate-500 uppercase px-5 py-3">Net Payout</th>
-                      <th className="text-right text-xs font-semibold text-slate-500 uppercase px-5 py-3">Status</th>
+                      <th className="text-left text-xs font-semibold text-slate-500 uppercase px-5 py-3 w-[30%]">Influencer</th>
+                      <th className="text-right text-xs font-semibold text-slate-500 uppercase px-5 py-3 w-[16%]">Amount</th>
+                      <th className="text-right text-xs font-semibold text-slate-500 uppercase px-5 py-3 w-[18%]">Commission (3%)</th>
+                      <th className="text-right text-xs font-semibold text-slate-500 uppercase px-5 py-3 w-[18%]">Net Payout</th>
+                      <th className="text-right text-xs font-semibold text-slate-500 uppercase px-5 py-3 w-[18%]">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">

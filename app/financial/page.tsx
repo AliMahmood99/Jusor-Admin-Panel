@@ -654,7 +654,6 @@ const TransactionFilters = ({ filters, setFilters }: TransactionFiltersProps) =>
   const categories: { id: TransactionCategory | 'all'; label: string }[] = [
     { id: 'all', label: 'All Transactions' },
     { id: 'campaign_payment', label: 'Campaign Payments' },
-    { id: 'wallet_ops', label: 'Wallet Operations' },
     { id: 'commission', label: 'Commissions' },
     { id: 'refund', label: 'Refunds' },
   ];

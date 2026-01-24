@@ -7,7 +7,13 @@
       "Bash(xargs kill -9)",
       "Bash(npm run dev:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(cat:*)",
+      "Bash(xargs cat:*)",
+      "Bash(textutil:*)",
+      "Bash(/tmp/jusor_srs_part6.txt)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []
