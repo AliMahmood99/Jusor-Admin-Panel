@@ -789,7 +789,7 @@ function OverviewTab({ user, isInfluencer }: { user: User; isInfluencer: boolean
         </div>
 
         {/* Verification Status */}
-        <VerificationCard user={user} isInfluencer={isInfluencer} />
+        <VerificationCard key={user.id} user={user} isInfluencer={isInfluencer} />
       </div>
 
       {/* Ratings & Reviews */}
