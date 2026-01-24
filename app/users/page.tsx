@@ -393,6 +393,9 @@ function EditableVerificationField({
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value || '');
 
+  // Debug: Log when component renders
+  console.log(`🔄 EditableVerificationField render - label: ${label}, verified: ${verified}, value: ${value}`);
+
   // Update editValue when value prop changes
   useEffect(() => {
     setEditValue(value || '');
@@ -541,21 +544,8 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
     flVerified: !isInfluencer && 'flVerified' in user ? user.flVerified : false,
   });
 
-  // Update state when user changes
-  useEffect(() => {
-    setVerificationState({
-      mawthooqId: isInfluencer && 'mawthooqId' in user ? user.mawthooqId : null,
-      mawthooqVerified: isInfluencer && 'mawthooqVerified' in user ? user.mawthooqVerified : false,
-      falNumber: isInfluencer && 'falNumber' in user ? user.falNumber : null,
-      falVerified: isInfluencer && 'falVerified' in user ? user.falVerified : false,
-      iban: isInfluencer && 'iban' in user ? user.iban : null,
-      ibanVerified: isInfluencer && 'ibanVerified' in user ? user.ibanVerified : false,
-      crNumber: !isInfluencer && 'crNumber' in user ? user.crNumber : null,
-      crVerified: !isInfluencer && 'crVerified' in user ? user.crVerified : false,
-      flNumber: !isInfluencer && 'flNumber' in user ? user.flNumber : null,
-      flVerified: !isInfluencer && 'flVerified' in user ? user.flVerified : false,
-    });
-  }, [user.id, isInfluencer]); // Re-initialize when user changes
+  // Note: We use key={user.id} on the component to reset state when user changes
+  // No need for useEffect since the component will remount with fresh state
 
   const handleEdit = (field: string, value: string) => {
     console.log(`Editing ${field} to:`, value);
@@ -577,8 +567,11 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
   const handleUnverify = (field: string) => {
     console.log(`❌ Unverifying ${field}`);
     const verifiedField = field + 'Verified';
+    console.log(`verifiedField key: "${verifiedField}"`);
     setVerificationState(prev => {
+      console.log('Previous state:', prev);
       const newState = { ...prev, [verifiedField]: false };
+      console.log(`Setting ${verifiedField} = false`);
       console.log('New state after unverify:', newState);
       return newState;
     });
