@@ -538,16 +538,24 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
   };
 
   const handleVerify = (field: string) => {
-    console.log(`Verifying ${field}`);
+    console.log(`✅ Verifying ${field}`);
     const verifiedField = field + 'Verified';
-    setVerificationState(prev => ({ ...prev, [verifiedField]: true }));
+    setVerificationState(prev => {
+      const newState = { ...prev, [verifiedField]: true };
+      console.log('New state after verify:', newState);
+      return newState;
+    });
     // TODO: API call to verify field
   };
 
   const handleUnverify = (field: string) => {
-    console.log(`Unverifying ${field}`);
+    console.log(`❌ Unverifying ${field}`);
     const verifiedField = field + 'Verified';
-    setVerificationState(prev => ({ ...prev, [verifiedField]: false }));
+    setVerificationState(prev => {
+      const newState = { ...prev, [verifiedField]: false };
+      console.log('New state after unverify:', newState);
+      return newState;
+    });
     // TODO: API call to unverify field
   };
 
