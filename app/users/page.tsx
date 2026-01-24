@@ -393,9 +393,6 @@ function EditableVerificationField({
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value || '');
 
-  // Debug: Log when component renders
-  console.log(`🔄 EditableVerificationField render - label: ${label}, verified: ${verified}, value: ${value}`);
-
   // Update editValue when value prop changes
   useEffect(() => {
     setEditValue(value || '');
@@ -493,12 +490,7 @@ function EditableVerificationField({
                   <Icons.checkCircle className="w-4 h-4" /> Verified
                 </span>
                 <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('🔴 Unverify button clicked!');
-                    onUnverify();
-                  }}
+                  onClick={onUnverify}
                   className="text-[10px] text-gray-400 hover:text-rose-600 hover:underline transition-colors cursor-pointer"
                 >
                   Unverify
@@ -506,12 +498,7 @@ function EditableVerificationField({
               </div>
             ) : value ? (
               <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log('🔵 Verify button clicked!');
-                  onVerify();
-                }}
+                onClick={onVerify}
                 className="px-2.5 py-1 text-xs font-medium text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors cursor-pointer"
               >
                 Verify
@@ -548,33 +535,19 @@ function VerificationCard({ user, isInfluencer }: { user: User; isInfluencer: bo
   // No need for useEffect since the component will remount with fresh state
 
   const handleEdit = (field: string, value: string) => {
-    console.log(`Editing ${field} to:`, value);
     setVerificationState(prev => ({ ...prev, [field]: value }));
     // TODO: API call to update field
   };
 
   const handleVerify = (field: string) => {
-    console.log(`✅ Verifying ${field}`);
     const verifiedField = field + 'Verified';
-    setVerificationState(prev => {
-      const newState = { ...prev, [verifiedField]: true };
-      console.log('New state after verify:', newState);
-      return newState;
-    });
+    setVerificationState(prev => ({ ...prev, [verifiedField]: true }));
     // TODO: API call to verify field
   };
 
   const handleUnverify = (field: string) => {
-    console.log(`❌ Unverifying ${field}`);
     const verifiedField = field + 'Verified';
-    console.log(`verifiedField key: "${verifiedField}"`);
-    setVerificationState(prev => {
-      console.log('Previous state:', prev);
-      const newState = { ...prev, [verifiedField]: false };
-      console.log(`Setting ${verifiedField} = false`);
-      console.log('New state after unverify:', newState);
-      return newState;
-    });
+    setVerificationState(prev => ({ ...prev, [verifiedField]: false }));
     // TODO: API call to unverify field
   };
 
